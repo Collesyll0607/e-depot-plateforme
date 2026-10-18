@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>E-Dépôt — La Bourse de Fret Agricole de Casamance</title>
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            /* Palette verte Casamance naturelle, ocre soleil et vert Wave */
+            --casamance-green: #064e3b;      /* Vert forêt Casamance */
+            --casamance-light: #059669;      /* Vert végétation */
+            --casamance-emerald: #10b981;    /* Vert émeraude */
+            --wave-cyan: #00d2aa;            /* Cyan Wave officiel */
+            --senegal-yellow: #f59e0b;       /* Ocre soleil / anacarde */
+            --terracotta: #c2410c;           /* Terre rouge de brousse */
+            --bg-soft: #f4f7f5;              /* Fond clair propre */
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-soft); color: var(--text-dark); padding-bottom: 75px; -webkit-tap-highlight-color: transparent; }
+
+        /* ================= TOP NAVBAR ================= */
+        header { 
+            background: linear-gradient(135deg, var(--casamance-green) 0%, #065f46 60%, #047857 100%); 
+            color: white; 
+            padding: 12px 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            box-shadow: 0 4px 15px rgba(6, 78, 59, 0.25); 
+        }
+        .header-brand { display: flex; align-items: center; gap: 8px; font-size: 1.2rem; font-weight: 900; cursor: pointer; letter-spacing: -0.5px; }
+        .header-brand span.logo-icon { font-size: 1.35rem; }
+        .header-brand span.sub-text { font-size: 0.72rem; font-weight: 600; color: #a7f3d0; background: rgba(255,255,255,0.15); padding: 2px 7px; border-radius: 12px; }
+
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-header-login {
+            background: rgba(255,255,255,0.2);
+            border: 1.5px solid rgba(255,255,255,0.4);
+            border-radius: 22px;
+            padding: 6px 14px;
+            font-size: 0.76rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-weight: 800;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+        }
+        .btn-header-login:hover { background: rgba(255,255,255,0.3); }
+        .btn-header-join {
+            background: var(--wave-cyan);
+            border: none;
+            color: #064e3b;
+            border-radius: 22px;
+            padding: 6px 14px;
+            font-size: 0.76rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 210, 170, 0.4);
+            transition: 0.2s;
+        }
+        .btn-header-join:hover { background: #34d399; }
+        .btn-logout {
+            background: #ef4444;
+            border: none;
+            color: white;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: none;
+        }
+
+        .container { max-width: 620px; margin: 0 auto; padding: 14px; }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.25s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ================= HERO BANNER CASAMANCE ================= */
+        .hero-casamance {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(6, 78, 59, 0.08);
+            border: 1px solid #d1fae5;
+            position: relative;
+        }
+        .hero-img-container {
+            width: 100%;
+            height: 205px;
+            position: relative;
+        }
+        .hero-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .hero-overlay-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to top, rgba(6, 78, 59, 0.95) 0%, rgba(6, 78, 59, 0.5) 60%, transparent 100%);
+            color: white;
+        }
+        .badge-nature {
+            background: rgba(16, 185, 129, 0.35);
+            border: 1px solid #6ee7b7;
+            color: #a7f3d0;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            display: inline-block;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .hero-title-main { font-size: 1.25rem; font-weight: 900; line-height: 1.3; }
+
+        /* ================= CAROUSEL : CAMIONS, SACS ET PANIERS DU MARCHÉ ================= */
+        .highlight-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+            scrollbar-width: none;
+        }
+        .highlight-scroll::-webkit-scrollbar { display: none; }
+        .highlight-card {
+            min-width: 195px;
+            max-width: 195px;
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .highlight-card img { width: 100%; height: 105px; object-fit: cover; }
+        .highlight-card-body { padding: 9px; }
+        .highlight-card-title { font-size: 0.82rem; font-weight: 800; color: var(--casamance-green); }
+        .highlight-card-desc { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; line-height: 1.3; }
+
+        /* ================= BANNIÈRE D'APPEL (COMMUNAUTÉ) ================= */
+        .community-banner {
+            background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 14px rgba(6, 78, 59, 0.15);
+            border-left: 5px solid var(--senegal-yellow);
+        }
+        .community-header { display: flex; justify-content: space-between; align-items: center; }
+        .community-title { font-size: 1rem; font-weight: 900; }
+        .community-text { font-size: 0.78rem; opacity: 0.95; line-height: 1.4; }
+        .community-actions { display: flex; gap: 8px; margin-top: 4px; }
+        .btn-cta-white { background: white; color: var(--casamance-green); border: none; border-radius: 10px; padding: 10px 14px; font-weight: 800; font-size: 0.82rem; flex: 1; cursor: pointer; text-align: center; }
+        .btn-cta-transparent { background: rgba(255,255,255,0.18); border: 1.5px solid white; color: white; border-radius: 10px; padding: 10px 14px; font-weight: 800; font-size: 0.82rem; flex: 1; cursor: pointer; text-align: center; }
+
+        /* ================= CARDS DES ANNONCES ================= */
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 16px; 
+            padding: 14px; 
+            margin-bottom: 14px; 
+            border: 1px solid var(--border-color); 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .card-title { font-weight: 800; font-size: 0.96rem; color: var(--text-dark); }
+        .price-badge { 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white; 
+            padding: 4px 10px; 
+            border-radius: 10px; 
+            font-size: 0.95rem; 
+            font-weight: 900; 
+            box-shadow: 0 2px 6px rgba(16,185,129,0.3);
+            white-space: nowrap;
+        }
+
+        .cargo-preview-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
+        .cargo-thumb { width: 62px; height: 62px; border-radius: 12px; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border-color); }
+        .cargo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+        .trajet-box { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; margin-bottom: 5px; color: #334155; }
+        .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+        .dot-org { background: var(--senegal-yellow); box-shadow: 0 0 0 3px rgba(245,158,11,0.2); }
+        .dot-dst { background: var(--casamance-emerald); box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+
+        /* Boutons */
+        .btn { width: 100%; border: none; padding: 12px 16px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn:active { transform: scale(0.98); }
+        .btn-wave { background: linear-gradient(135deg, #00d2aa 0%, #00b391 100%); color: #003328; box-shadow: 0 4px 12px rgba(0,210,170,0.35); }
+        .btn-primary { background: linear-gradient(135deg, var(--casamance-green) 0%, #047857 100%); color: white; box-shadow: 0 4px 12px rgba(6,78,59,0.25); }
+        .btn-camion { background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); color: white; box-shadow: 0 4px 12px rgba(234,88,12,0.3); }
+        .btn-danger { background: #fee2e2; color: var(--danger); }
+        .btn-outline { background: transparent; border: 1.5px solid var(--casamance-light); color: var(--casamance-light); }
+        .btn-sm { padding: 6px 12px; font-size: 0.76rem; border-radius: 8px; width: auto; }
+
+        /* Forms */
+        .form-group { margin-bottom: 10px; }
+        .form-label { display: block; font-size: 0.78rem; font-weight: 700; color: #334155; margin-bottom: 4px; }
+        .form-control { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 0.86rem; outline: none; background: #fff; }
+        .form-control:focus { border-color: var(--casamance-light); box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15); }
+        .form-section-title { font-size: 0.82rem; font-weight: 800; color: var(--casamance-green); margin: 12px 0 6px 0; border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+        #map { height: 190px; width: 100%; border-radius: 12px; margin-top: 8px; border: 1px solid #cbd5e1; }
+
+        .portal-banner {
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Modals */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 78, 59, 0.75); backdrop-filter: blur(4px); z-index: 2000; justify-content: center; align-items: center; padding: 16px; }
+        .modal-content { background: white; border-radius: 20px; padding: 22px; width: 100%; max-width: 440px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+        .otp-input { width: 100%; font-size: 1.8rem; letter-spacing: 8px; text-align: center; padding: 12px; margin: 12px 0; border: 2.5px solid var(--casamance-light); border-radius: 12px; font-weight: 900; color: var(--casamance-green); background:#f8fafc; }
+
+        /* Navigation Bar */
+        nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            background: white; 
+            border-top: 1px solid var(--border-color); 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 9px 0; 
+            z-index: 1000; 
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.06); 
+        }
+        .nav-item { 
+            text-align: center; 
+            color: var(--text-muted); 
+            font-size: 0.72rem; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 3px; 
+            cursor: pointer; 
+            padding: 4px 8px; 
+            border-radius: 8px; 
+            font-weight: 600;
+        }
+        .nav-item.active { color: var(--casamance-green); font-weight: 800; }
+        .nav-icon { font-size: 1.25rem; }
+
+        .toast { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); background: #064e3b; color: white; padding: 10px 20px; border-radius: 25px; font-size: 0.82rem; font-weight: 700; z-index: 3000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+    </style>
+</head>
+<body>
+
+    <!-- Header Principal -->
+    <header>
+        <div class="header-brand" onclick="afficherVue('vue-accueil')">
+            <span class="logo-icon">🌴</span> 
+            <span>E-Dépôt</span> 
+            <span class="sub-text">Fret Casamance</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn-logout" id="btnDeconnexion" onclick="deconnecterUtilisateur()">
+                🚪 Déconnexion
+            </button>
+            <button class="btn-header-join" id="btnInscriptionHeader" onclick="ouvrirModalInscription()">
+                S'inscrire
+            </button>
+            <div class="btn-header-login" id="authBtn" onclick="ouvrirModalAuth()">
+                <span id="authIcon">🔑</span> <span id="authLabel">Connexion</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- ================= 1. PAGE D'ACCUEIL : 100% TRANSPORT & MARCHÉS DE CASAMANCE ================= -->
+        <div id="vue-accueil" class="view-section active">
+            
+            <!-- Hero Banner avec Camion lourd sur piste de Casamance -->
+            <div class="hero-casamance">
+                <div class="hero-img-container">
+                    <img src="assets/camion_afrique.jpg" alt="Camion de fret lourd en Casamance" />
+                    <div class="hero-overlay-gradient">
+                        <span class="badge-nature">● Réseau Logistique Rural &amp; Brousse</span>
+                        <div class="hero-title-main">Acheminement Rapide de vos Récoltes &amp; Marchandises</div>
+                    </div>
+                </div>
+                <div style="padding:14px; font-size:0.82rem; color:#334155; line-height:1.45;">
+                    De <b>Ziguinchor (Tilène)</b> à <b>Oussouye</b>, <b>Bignona</b> et <b>Sédhiou</b> : E-Dépôt permet aux commerçants et agricultrices d'expédier leurs chargements en profitant des camions en retour à vide. Transactions 100% sécurisées par <b>Séquestre Wave</b>.
+                </div>
+            </div>
+
+            <!-- Focus 100% Métier : Camions, Sacs de Récoltes, Paniers de Légumes & Marchande -->
+            <div style="font-size:0.85rem; font-weight:800; color:var(--casamance-green); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                <span>Le Fret Rural en Images :</span>
+                <span style="font-size:0.7rem; color:var(--casamance-light); font-weight:700;">Casamance &amp; Sénégal</span>
+            </div>
+
+            <div class="highlight-scroll">
+                <!-- Gros Paniers de Légumes et Fruits -->
+                <div class="highlight-card">
+                    <img src="assets/paniers_legumes.jpg" alt="Paniers de légumes et mangues Casamance" />
+                    <div class="highlight-card-body">
+                        <div class="highlight-card-title">🧺 Paniers de Légumes</div>
+                        <div class="highlight-card-desc">Mangues, piments et légumes frais chargés directement au verger.</div>
+                    </div>
+                </div>
+
+                <!-- Sacs de Riz et Anacarde -->
+                <div class="highlight-card">
+                    <img src="assets/sacs_recoltes.jpg" alt="Sacs de riz et noix d'anacarde" />
+                    <div class="highlight-card-body">
+                        <div class="highlight-card-title">🌾 Sacs de Grains &amp; Anacarde</div>
+                        <div class="highlight-card-desc">Sacs de 50 kg et 100 kg pesés et enregistrés pour les camions plateaux.</div>
+                    </div>
+                </div>
+
+                <!-- Commerçante africaine au marché -->
+                <div class="highlight-card">
+                    <img src="assets/commercante_marche.jpg" alt="Commerçante africaine Marché Tilène" />
+                    <div class="highlight-card-body">
+                        <div class="highlight-card-title">👩🏾‍💼 Commerçantes Locales</div>
+                        <div class="highlight-card-desc">Expéditions directes vers Dakar et Cap Skirring avec garantie Wave.</div>
+                    </div>
+                </div>
+
+                <!-- Chargement et Logistique Camion -->
+                <div class="highlight-card">
+                    <img src="assets/chargement_camion.jpg" alt="Entrepôt et chargement camion" />
+                    <div class="highlight-card-body">
+                        <div class="highlight-card-title">🚚 Camions de 5T à 20T</div>
+                        <div class="highlight-card-desc">Camionneurs vérifiés disponibles sur les routes régionales.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bannière d'appel à rejoindre (Présentation & Confiance) -->
+            <div class="community-banner">
+                <div class="community-header">
+                    <div class="community-title">Vous avez des récoltes ou un camion disponible ?</div>
+                    <span style="font-size:1.5rem;">🚚</span>
+                </div>
+                <div class="community-text">
+                    Rejoignez les transporteurs et commerçants de la région. Fini les retours à vide et les impayés : l'argent est séquestré sur Wave avant le départ et libéré à l'arrivée avec l'OTP.
+                </div>
+                <div class="community-actions">
+                    <button class="btn-cta-white" onclick="ouvrirModalAuth()">
+                        🔑 Se Connecter
+                    </button>
+                    <button class="btn-cta-transparent" onclick="ouvrirModalInscription()">
+                        ✨ Créer mon Compte
+                    </button>
+                </div>
+            </div>
+
+            <!-- Fret en attente de transport (Dernières annonces) -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📦 Dernières Annonces Publiées en Brousse</div>
+                    <span style="font-size:0.75rem; color:var(--casamance-emerald); font-weight:bold;">● En Direct</span>
+                </div>
+                <div id="apercuFretList"></div>
+            </div>
+        </div>
+
+        <!-- ================= 2. PORTAIL PRIVÉ : COMMERÇANT ================= -->
+        <div id="vue-commercant" class="view-section">
+            <div class="portal-banner" style="background:#ecfdf5; border-left:4px solid var(--casamance-light); color:var(--casamance-green);">
+                <div>
+                    <div style="font-weight:900; font-size:0.95rem;">Espace Commerçant / Expéditeur</div>
+                    <div style="font-size:0.75rem; opacity:0.9;" id="commercantBannerText">Session Active : Collé SYLL</div>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="ouvrirModalEditionProfil()">✏️ Profil</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📢 Publier un Envoi de Cargaison</div>
+                </div>
+                <form id="formCommercant" onsubmit="soumettreAnnonceCommercant(event)">
+                    <div class="form-section-title">📦 Marchandise &amp; Trajet en Casamance</div>
+                    <div class="form-group">
+                        <label class="form-label">Type de Marchandise &amp; Poids (kg)</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" id="comMarchandise" class="form-control" placeholder="Ex: 50 Sacs d'anacarde, 20 Paniers de mangues..." style="flex:2;" required />
+                            <input type="number" id="comPoids" class="form-control" placeholder="Poids (kg)" style="flex:1;" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Trajet (Origine ➔ Destination)</label>
+                        <div style="display:flex; gap:8px;">
+                            <select id="comOrigine" class="form-control" required>
+                                <option value="Oussouye">Oussouye (Brousse)</option>
+                                <option value="Bignona">Bignona</option>
+                                <option value="Sédhiou">Sédhiou</option>
+                                <option value="Kolda">Kolda</option>
+                            </select>
+                            <select id="comDestination" class="form-control" required>
+                                <option value="Ziguinchor (Tilène)">Ziguinchor (Marché Tilène)</option>
+                                <option value="Cap Skirring">Cap Skirring (Hôtels)</option>
+                                <option value="Dakar">Dakar (Thiaroye)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Prix Proposé pour le Transport (FCFA)</label>
+                        <input type="number" id="comPrix" class="form-control" placeholder="Ex: 45000" required />
+                    </div>
+
+                    <div class="form-section-title">🏪 Informations du Destinataire à l'Arrivée</div>
+                    <div class="form-group">
+                        <label class="form-label">Nom du Destinataire / Boutique</label>
+                        <input type="text" id="comDestNom" class="form-control" placeholder="Ex: Seydou Diallo (Boutique Tilène)" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Téléphone du Destinataire (SMS &amp; OTP)</label>
+                        <input type="tel" id="comDestTel" class="form-control" placeholder="+221 77 654 32 10" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Adresse / Point de Déchargement Précis</label>
+                        <input type="text" id="comDestAdresse" class="form-control" placeholder="Ex: Hangar 4, Marché Tilène" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top:10px;">
+                        🚀 Publier et Notifier les Camionneurs de la Zone
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📋 Mes Expéditions &amp; Suivi Séquestre Wave</div>
+                </div>
+                <div id="commercantMesLots"></div>
+            </div>
+        </div>
+
+        <!-- ================= 3. PORTAIL PRIVÉ : CAMIONNEUR ================= -->
+        <div id="vue-camionneur" class="view-section">
+            <div class="portal-banner" style="background:#fffbeb; border-left:4px solid var(--senegal-yellow); color:#92400e;">
+                <div>
+                    <div style="font-weight:900; font-size:0.95rem;">Espace Camionneur / Fret Retour</div>
+                    <div style="font-size:0.75rem; opacity:0.9;" id="camionneurBannerText">Session Active : Modou Ndiaye</div>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="ouvrirModalEditionProfil()">✏️ Profil</button>
+            </div>
+
+            <!-- Profil Vérifié Chauffeur Sénégalais -->
+            <div class="card" style="background:#fffbeb; border-color:#fde68a;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:52px; height:52px; border-radius:50%; overflow:hidden; border:2.5px solid var(--senegal-yellow); flex-shrink:0;">
+                        <img src="assets/chauffeur_afrique.jpg" alt="Chauffeur sénégalais" style="width:100%; height:100%; object-fit:cover;" />
+                    </div>
+                    <div>
+                        <div style="font-weight:bold; font-size:0.92rem;" id="profilCamionneurNomAffichage">Modou Ndiaye (Camionneur Vérifié ✅)</div>
+                        <div style="font-size:0.75rem; color:#92400e;" id="profilCamionneurDetails">Camion Plateau 5T · Permis Poids Lourd OK · Note : <b>4.9 ★★★★★</b></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📍 Suivi d'Itinéraire en Direct (OpenRouteService)</div>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Casamance</span>
+                </div>
+                <div id="map"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🌾 Fret Disponible pour Retours à Vide</div>
+                </div>
+                <div id="camionneurBourseList"></div>
+            </div>
+
+            <div class="card" id="camionLivraisonBox" style="display:none; border:2px solid var(--senegal-yellow);">
+                <div class="card-header">
+                    <div class="card-title">🏁 Déchargement Effectué chez le Destinataire</div>
+                    <span class="price-badge">95% Net Wave</span>
+                </div>
+                <p style="font-size:0.8rem; color:#475569; margin-bottom:8px;">
+                    Saisissez le code secret OTP remis par le destinataire (ou scannez son QR Code) pour débloquer votre virement instantané.
+                </p>
+                <button class="btn btn-primary" onclick="ouvrirModalSaisieOtpChauffeur()">
+                    🔑 Saisir l'OTP / Valider QR Code pour Libérer mon Paiement
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= 4. PORTAIL PRIVÉ : DESTINATAIRE ================= -->
+        <div id="vue-destinataire" class="view-section">
+            <div class="portal-banner" style="background:#f0f9ff; border-left:4px solid #0284c7; color:#075985;">
+                <div>
+                    <div style="font-weight:900; font-size:0.95rem;">Espace Destinataire / Dépôt</div>
+                    <div style="font-size:0.75rem; opacity:0.9;" id="destinataireBannerText">Session Active : Seydou Diallo</div>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="ouvrirModalEditionProfil()">✏️ Profil</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📦 Cargaisons en Route vers votre Dépôt</div>
+                </div>
+                <div id="destinataireColisList"></div>
+            </div>
+        </div>
+
+        <!-- ================= 5. PORTAIL PRIVÉ : ADMINISTRATEUR ================= -->
+        <div id="vue-admin" class="view-section">
+            <div class="portal-banner" style="background:#faf5ff; border-left:4px solid #7c3aed; color:#5b21b6;">
+                <div>
+                    <div style="font-weight:900; font-size:0.95rem;">Console d'Administration E-Dépôt</div>
+                    <div style="font-size:0.75rem; opacity:0.9;">Supervision des transactions de séquestre &amp; arbitrage des litiges.</div>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="ouvrirModalEditionProfil()">✏️ Profil</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:12px;">
+                <div class="card" style="margin:0; text-align:center; padding:10px;">
+                    <div style="font-size:1.15rem; font-weight:900; color:#7c3aed;" id="adminFluxTotal">110 k</div>
+                    <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700;">Flux Séquestre</div>
+                </div>
+                <div class="card" style="margin:0; text-align:center; padding:10px;">
+                    <div style="font-size:1.15rem; font-weight:900; color:var(--success);" id="adminCommissionTotale">5 500 F</div>
+                    <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700;">Commissions (5%)</div>
+                </div>
+                <div class="card" style="margin:0; text-align:center; padding:10px;">
+                    <div style="font-size:1.15rem; font-weight:900; color:var(--danger);">0</div>
+                    <div style="font-size:0.68rem; color:var(--text-muted); font-weight:700;">Litiges</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📊 Journal des Séquestres Wave &amp; Transactions</div>
+                </div>
+                <div id="adminJournalTransactions" style="font-size:0.78rem;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= MODAL DE CONNEXION SÉCURISÉE ================= -->
+    <div class="modal" id="modalAuth">
+        <div class="modal-content">
+            <h3 style="color:var(--casamance-green); margin-bottom:6px;">🔐 Connexion Sécurisée E-Dépôt</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
+                Connectez-vous pour ouvrir votre espace de travail privé.
+            </p>
+
+            <form id="formLogin" onsubmit="traiterLoginSecurise(event)">
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Votre Rôle</label>
+                    <select id="loginRole" class="form-control" onchange="remplirIdentifiantsDemo()" required>
+                        <option value="COMMERCANT">🌾 Commerçant (Expéditeur en brousse)</option>
+                        <option value="CAMIONNEUR">🚚 Camionneur (Transporteur retours)</option>
+                        <option value="DESTINATAIRE">🏪 Destinataire (Réceptionnaire au dépôt)</option>
+                        <option value="ADMIN">🛡️ Administrateur E-Dépôt</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Identifiant / Email</label>
+                    <input type="text" id="loginEmail" class="form-control" placeholder="ex: colle.syll@edepot.sn" required />
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Mot de Passe Sécurisé</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Entrez votre mot de passe" required />
+                    <div style="font-size:0.7rem; color:#64748b; margin-top:3px;">
+                        💡 <i>Mot de passe de test : <b>Passer123!</b></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="margin-top:12px;">
+                    Se Connecter en toute Sécurité
+                </button>
+            </form>
+
+            <div style="margin-top:12px; font-size:0.78rem; color:#64748b;">
+                Nouveau membre ? <a href="javascript:void(0)" onclick="basculerVersInscription()" style="color:var(--casamance-light); font-weight:bold;">Créer un compte ici</a>
+            </div>
+            <button class="btn btn-outline" onclick="fermerModalAuth()" style="margin-top:8px;">
+                Fermer
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= MODAL D'INSCRIPTION ================= -->
+    <div class="modal" id="modalInscription">
+        <div class="modal-content">
+            <h3 style="color:var(--casamance-green); margin-bottom:6px;">✨ Rejoindre la Communauté E-Dépôt</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
+                Créez votre compte en quelques secondes et commencez à opérer en Casamance.
+            </p>
+
+            <form id="formInscription" onsubmit="validerInscription(event)">
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Votre Rôle Principal</label>
+                    <select id="inscripRole" class="form-control" onchange="toggleChampsCamionneurInscrip()" required>
+                        <option value="COMMERCANT">🌾 Commerçant (J'expédie des récoltes/fret)</option>
+                        <option value="CAMIONNEUR">🚚 Camionneur (J'ai un camion pour transporter)</option>
+                        <option value="DESTINATAIRE">🏪 Destinataire (Je reçois des marchandises)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Nom et Prénom</label>
+                    <input type="text" id="inscripNom" class="form-control" placeholder="Ex: Collé Syll" required />
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Email de Contact</label>
+                    <input type="email" id="inscripEmail" class="form-control" placeholder="ex: colle@edepot.sn" required />
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Numéro Téléphone Wave</label>
+                    <input type="tel" id="inscripTel" class="form-control" placeholder="+221 77 123 45 67" required />
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Mot de Passe (Min. 6 caractères)</label>
+                    <input type="password" id="inscripPassword" class="form-control" placeholder="Créez un mot de passe fort" minlength="6" required />
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Ville / Commune en Casamance</label>
+                    <input type="text" id="inscripVille" class="form-control" placeholder="Ex: Ziguinchor, Oussouye, Bignona..." required />
+                </div>
+
+                <div id="champsCamionneurInscrip" style="display:none; background:#fef3c7; padding:10px; border-radius:10px; margin-bottom:10px; text-align:left;">
+                    <label class="form-label" style="color:#92400e;">Type de Camion &amp; Capacité</label>
+                    <input type="text" id="inscripCamion" class="form-control" placeholder="Ex: Plateau 7 Tonnes / Fourgon" />
+                </div>
+
+                <button type="submit" class="btn btn-wave" style="margin-top:12px;">
+                    ✅ Créer mon Compte &amp; Accéder à mon Espace
+                </button>
+            </form>
+            <div style="margin-top:12px; font-size:0.78rem; color:#64748b;">
+                Déjà inscrit ? <a href="javascript:void(0)" onclick="basculerVersConnexion()" style="color:var(--casamance-light); font-weight:bold;">Se connecter</a>
+            </div>
+            <button type="button" class="btn btn-outline" onclick="fermerModalInscription()" style="margin-top:8px;">
+                Fermer
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= MODAL ÉDITION DE PROFIL ================= -->
+    <div class="modal" id="modalProfil">
+        <div class="modal-content">
+            <h3 style="color:var(--casamance-green); margin-bottom:6px;">✏️ Modifier Mon Profil</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">
+                Mettez à jour vos informations et coordonnées Wave.
+            </p>
+
+            <form id="formEditProfil" onsubmit="sauvegarderProfil(event)">
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Nom et Prénom</label>
+                    <input type="text" id="editNom" class="form-control" required />
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="editEmail" class="form-control" required />
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Numéro Téléphone Wave</label>
+                    <input type="tel" id="editTel" class="form-control" required />
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Nouveau Mot de Passe (Optionnel)</label>
+                    <input type="password" id="editNewPass" class="form-control" placeholder="Laisser vide pour ne pas changer" />
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Localisation (Base / Marché)</label>
+                    <input type="text" id="editLocalisation" class="form-control" />
+                </div>
+
+                <div id="editCamionDetailsBox" style="display:none; text-align:left;" class="form-group">
+                    <label class="form-label">Caractéristiques Camion</label>
+                    <input type="text" id="editCamion" class="form-control" />
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="margin-top:12px;">
+                    💾 Enregistrer les Modifications
+                </button>
+                <button type="button" class="btn btn-outline" onclick="fermerModalProfil()" style="margin-top:8px;">
+                    Annuler
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL SAISIE OTP & SCAN QR ================= -->
+    <div class="modal" id="modalOtpChauffeur">
+        <div class="modal-content">
+            <h3 style="color:var(--casamance-green); margin-bottom:6px;">🏁 Confirmation de Déchargement</h3>
+            <p style="font-size:0.82rem; color:var(--text-muted);">
+                Saisissez le code secret OTP à 6 chiffres OU validez avec le QR Code du destinataire :
+            </p>
+            <input type="text" id="otpChauffeurInput" class="otp-input" placeholder="000000" maxlength="6" />
+
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+                <button class="btn btn-outline" style="font-size:0.78rem;" onclick="simulerScanQrCode()">
+                    📷 Simuler Scan QR Code
+                </button>
+                <button class="btn btn-wave" onclick="validerOtpParChauffeur()" style="flex:2;">
+                    ✅ Valider &amp; Débloquer Wave (95 %)
+                </button>
+            </div>
+            <button class="btn btn-danger" onclick="fermerModalOtpChauffeur()">Annuler</button>
+        </div>
+    </div>
+
+    <!-- ================= MODAL NOTATION ================= -->
+    <div class="modal" id="modalNotation">
+        <div class="modal-content">
+            <h3 style="color:var(--casamance-green); margin-bottom:6px;">⭐ Évaluation de Fin de Livraison</h3>
+            <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:12px;">
+                Attribuez une note pour renforcer la confiance dans le réseau de transport de Casamance.
+            </p>
+            <div style="font-size:2rem; margin-bottom:10px; cursor:pointer;" id="etoilesNotation">
+                ⭐⭐⭐⭐⭐
+            </div>
+            <textarea id="commentaireNotation" class="form-control" rows="2" placeholder="Ex: Chauffeur ponctuel, cargaison de mangues intacte !"></textarea>
+            <button class="btn btn-primary" style="margin-top:12px;" onclick="enregistrerNotation()">
+                Envoyer mon Avis et Clôturer
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Action effectuée !</div>
+
+    <!-- Bottom Navigation Bar Épurée -->
+    <nav>
+        <div class="nav-item active" id="navAccueil" onclick="afficherVue('vue-accueil')">
+            <span class="nav-icon">🌴</span>
+            <span>Découvrir</span>
+        </div>
+        <div class="nav-item" id="navRole" onclick="allerVersMonEspace()">
+            <span class="nav-icon" id="navRoleIcon">📦</span>
+            <span id="navRoleText">Mon Espace</span>
+        </div>
+        <div class="nav-item" id="navAuthFooter" onclick="ouvrirModalAuth()">
+            <span class="nav-icon">👤</span>
+            <span id="navConnexionText">Session</span>
+        </div>
+    </nav>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const comptesUtilisateurs = {
+            COMMERCANT: {
+                nom: "Collé SYLL",
+                email: "colle.syll@edepot.sn",
+                password: "Passer123!",
+                tel: "+221 77 123 45 67",
+                localisation: "Oussouye (Marché Central)",
+                camion: "",
+                reputation: 5.0
+            },
+            CAMIONNEUR: {
+                nom: "Modou Ndiaye",
+                email: "modou.ndiaye@edepot.sn",
+                password: "Passer123!",
+                tel: "+221 77 555 44 33",
+                localisation: "Ziguinchor (Gare Routière)",
+                camion: "Camion Plateau 5 Tonnes · Permis Poids Lourd OK",
+                reputation: 4.9
+            },
+            DESTINATAIRE: {
+                nom: "Seydou Diallo",
+                email: "seydou.diallo@edepot.sn",
+                password: "Passer123!",
+                tel: "+221 77 987 65 43",
+                localisation: "Ziguinchor (Marché Tilène, Hangar 4)",
+                camion: "",
+                reputation: 4.8
+            },
+            ADMIN: {
+                nom: "Administration E-Dépôt",
+                email: "admin@edepot.sn",
+                password: "Passer123!",
+                tel: "+221 77 000 11 22",
+                localisation: "UASZ Ziguinchor",
+                camion: "",
+                reputation: 5.0
+            }
+        };
+
+        let sessionActive = {
+            estConnecte: false,
+            jwtToken: null,
+            role: null,
+            nom: "",
+            email: "",
+            tel: "",
+            localisation: "",
+            camion: ""
+        };
+
+        const dbDemandes = [
+            {
+                id: "101",
+                marchandise: "Mangues Kent & Paniers de Légumes",
+                photo: "assets/paniers_legumes.jpg",
+                poids: 350,
+                origine: "Oussouye",
+                destination: "Ziguinchor (Tilène)",
+                prix: 45000,
+                commercant: "Amadou Ba",
+                destinataire: {
+                    nom: "Seydou Diallo (Grossiste Tilène)",
+                    tel: "+221 77 987 65 43",
+                    adresse: "Hangar 4, Marché Tilène"
+                },
+                chauffeurPropose: "Modou Ndiaye (4.9 ★)",
+                statut: "OUVERT",
+                otp: "947215"
+            },
+            {
+                id: "102",
+                marchandise: "Sacs de Riz Local & Noix d'Anacarde",
+                photo: "assets/sacs_recoltes.jpg",
+                poids: 500,
+                origine: "Bignona",
+                destination: "Cap Skirring",
+                prix: 65000,
+                commercant: "Mariama Sagna",
+                destinataire: {
+                    nom: "Hôtel Hibiscus (Réceptionnaire Chef)",
+                    tel: "+221 77 456 78 90",
+                    adresse: "Plage Cap Skirring"
+                },
+                chauffeurPropose: null,
+                statut: "OUVERT",
+                otp: "381042"
+            }
+        ];
+
+        let map;
+        let activeLotPourOtp = null;
+
+        function initMap() {
+            if (document.getElementById('map') && !map) {
+                map = L.map('map').setView([12.568, -16.273], 10);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap · E-Dépôt Casamance'
+                }).addTo(map);
+
+                L.marker([12.484, -16.545]).addTo(map).bindPopup("<b>Oussouye</b>");
+                L.marker([12.573, -16.273]).addTo(map).bindPopup("<b>Ziguinchor</b> (Tilène)");
+
+                L.polyline([
+                    [12.484, -16.545],
+                    [12.515, -16.425],
+                    [12.573, -16.273]
+                ], { color: '#059669', weight: 5, dashArray: '6, 8' }).addTo(map);
+            }
+        }
+
+        function afficherVue(vueId) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.getElementById(vueId).classList.add('active');
+
+            document.querySelectorAll('nav .nav-item').forEach(n => n.classList.remove('active'));
+            if (vueId === 'vue-accueil') {
+                document.getElementById('navAccueil').classList.add('active');
+            } else {
+                document.getElementById('navRole').classList.add('active');
+            }
+
+            if (vueId === 'vue-camionneur' && map) {
+                setTimeout(() => { map.invalidateSize(); }, 200);
+            }
+        }
+
+        function allerVersMonEspace() {
+            if (!sessionActive.estConnecte) {
+                ouvrirModalAuth();
+                showToast("Veuillez vous connecter pour accéder à votre espace.");
+                return;
+            }
+            const roleVues = {
+                COMMERCANT: 'vue-commercant',
+                CAMIONNEUR: 'vue-camionneur',
+                DESTINATAIRE: 'vue-destinataire',
+                ADMIN: 'vue-admin'
+            };
+            afficherVue(roleVues[sessionActive.role] || 'vue-accueil');
+        }
+
+        function remplirIdentifiantsDemo() {
+            const role = document.getElementById('loginRole').value;
+            const user = comptesUtilisateurs[role];
+            document.getElementById('loginEmail').value = user.email;
+            document.getElementById('loginPassword').value = user.password;
+        }
+
+        function traiterLoginSecurise(e) {
+            e.preventDefault();
+            const role = document.getElementById('loginRole').value;
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
+
+            const user = comptesUtilisateurs[role];
+            if (user && user.email === email && user.password === pass) {
+                sessionActive.estConnecte = true;
+                sessionActive.jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." + btoa(JSON.stringify({ sub: user.email, role: role, exp: Date.now() + 3600000 }));
+                sessionActive.role = role;
+                sessionActive.nom = user.nom;
+                sessionActive.email = user.email;
+                sessionActive.tel = user.tel;
+                sessionActive.localisation = user.localisation;
+                sessionActive.camion = user.camion;
+
+                fermerModalAuth();
+                majInterfaceSession();
+                allerVersMonEspace();
+                showToast(`Authentifié avec succès : ${user.nom}`);
+            } else {
+                alert("❌ Erreur d'authentification ! Vérifiez votre identifiant ou votre mot de passe.");
+            }
+        }
+
+        function deconnecterUtilisateur() {
+            sessionActive.estConnecte = false;
+            sessionActive.jwtToken = null;
+            sessionActive.role = null;
+
+            document.getElementById('btnDeconnexion').style.display = 'none';
+            document.getElementById('btnInscriptionHeader').style.display = 'inline-block';
+            document.getElementById('authLabel').innerText = "Connexion";
+            document.getElementById('authIcon').innerText = "🔑";
+            document.getElementById('navRoleText').innerText = "Mon Espace";
+            document.getElementById('navRoleIcon').innerText = "📦";
+
+            afficherVue('vue-accueil');
+            showToast("Session fermée. Vous êtes de retour sur l'accueil.");
+        }
+
+        function majInterfaceSession() {
+            document.getElementById('btnDeconnexion').style.display = 'inline-block';
+            document.getElementById('btnInscriptionHeader').style.display = 'none';
+            document.getElementById('authLabel').innerText = sessionActive.nom.split(' ')[0];
+            document.getElementById('authIcon').innerText = "👤";
+
+            const r = sessionActive.role;
+            if (r === 'COMMERCANT') {
+                document.getElementById('commercantBannerText').innerText = `Session Active : ${sessionActive.nom} (${sessionActive.tel})`;
+                document.getElementById('navRoleIcon').innerText = "🌾";
+                document.getElementById('navRoleText').innerText = "Commerçant";
+            }
+            if (r === 'CAMIONNEUR') {
+                document.getElementById('camionneurBannerText').innerText = `Session Active : ${sessionActive.nom}`;
+                document.getElementById('profilCamionneurNomAffichage').innerText = `${sessionActive.nom} (Vérifié ✅)`;
+                if (sessionActive.camion) {
+                    document.getElementById('profilCamionneurDetails').innerHTML = `${sessionActive.camion} · Note : <b>4.9 ★★★★★</b>`;
+                }
+                document.getElementById('navRoleIcon').innerText = "🚚";
+                document.getElementById('navRoleText').innerText = "Camionneur";
+            }
+            if (r === 'DESTINATAIRE') {
+                document.getElementById('destinataireBannerText').innerText = `Session Active : ${sessionActive.nom} (${sessionActive.localisation})`;
+                document.getElementById('navRoleIcon').innerText = "🏪";
+                document.getElementById('navRoleText').innerText = "Destinataire";
+            }
+            if (r === 'ADMIN') {
+                document.getElementById('navRoleIcon').innerText = "🛡️";
+                document.getElementById('navRoleText').innerText = "Admin";
+            }
+        }
+
+        function ouvrirModalAuth() { document.getElementById('modalAuth').style.display = 'flex'; }
+        function fermerModalAuth() { document.getElementById('modalAuth').style.display = 'none'; }
+
+        function ouvrirModalInscription() { document.getElementById('modalInscription').style.display = 'flex'; }
+        function fermerModalInscription() { document.getElementById('modalInscription').style.display = 'none'; }
+
+        function basculerVersInscription() { fermerModalAuth(); ouvrirModalInscription(); }
+        function basculerVersConnexion() { fermerModalInscription(); ouvrirModalAuth(); }
+
+        function toggleChampsCamionneurInscrip() {
+            const role = document.getElementById('inscripRole').value;
+            document.getElementById('champsCamionneurInscrip').style.display = (role === 'CAMIONNEUR') ? 'block' : 'none';
+        }
+
+        function validerInscription(e) {
+            e.preventDefault();
+            const role = document.getElementById('inscripRole').value;
+            const nom = document.getElementById('inscripNom').value;
+            const email = document.getElementById('inscripEmail').value;
+            const tel = document.getElementById('inscripTel').value;
+            const pass = document.getElementById('inscripPassword').value;
+            const ville = document.getElementById('inscripVille').value;
+            const camion = document.getElementById('inscripCamion').value;
+
+            comptesUtilisateurs[role] = { nom, email, password: pass, tel, localisation: ville, camion, reputation: 5.0 };
+
+            sessionActive.estConnecte = true;
+            sessionActive.jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." + btoa(JSON.stringify({ sub: email, role: role }));
+            sessionActive.role = role;
+            sessionActive.nom = nom;
+            sessionActive.email = email;
+            sessionActive.tel = tel;
+            sessionActive.localisation = ville;
+            sessionActive.camion = camion;
+
+            fermerModalInscription();
+            majInterfaceSession();
+            allerVersMonEspace();
+            alert(`🎉 Félicitations, ${nom} !
+Votre compte E-Dépôt est actif en Casamance.`);
+        }
+
+        function ouvrirModalEditionProfil() {
+            document.getElementById('editNom').value = sessionActive.nom;
+            document.getElementById('editEmail').value = sessionActive.email;
+            document.getElementById('editTel').value = sessionActive.tel;
+            document.getElementById('editLocalisation').value = sessionActive.localisation || "";
+            document.getElementById('editNewPass').value = "";
+
+            const isCamion = (sessionActive.role === 'CAMIONNEUR');
+            document.getElementById('editCamionDetailsBox').style.display = isCamion ? 'block' : 'none';
+            if (isCamion) document.getElementById('editCamion').value = sessionActive.camion || "";
+
+            document.getElementById('modalProfil').style.display = 'flex';
+        }
+        function fermerModalProfil() { document.getElementById('modalProfil').style.display = 'none'; }
+
+        function sauvegarderProfil(e) {
+            e.preventDefault();
+            sessionActive.nom = document.getElementById('editNom').value;
+            sessionActive.email = document.getElementById('editEmail').value;
+            sessionActive.tel = document.getElementById('editTel').value;
+            sessionActive.localisation = document.getElementById('editLocalisation').value;
+
+            const newPass = document.getElementById('editNewPass').value.trim();
+            if (newPass.length >= 6) {
+                comptesUtilisateurs[sessionActive.role].password = newPass;
+            }
+
+            if (sessionActive.role === 'CAMIONNEUR') {
+                sessionActive.camion = document.getElementById('editCamion').value;
+            }
+
+            comptesUtilisateurs[sessionActive.role] = { ...sessionActive, password: comptesUtilisateurs[sessionActive.role].password };
+            majInterfaceSession();
+            fermerModalProfil();
+            showToast("Profil et coordonnées Wave mis à jour !");
+        }
+
+        function synchroniserDonnees() {
+            const apercu = document.getElementById('apercuFretList');
+            apercu.innerHTML = dbDemandes.slice(0, 3).map(d => `
+                <div style="border-bottom:1px solid #f1f5f9; padding:8px 0; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <img src="${d.photo}" style="width:40px; height:40px; border-radius:8px; object-fit:cover;" />
+                        <div>
+                            <div style="font-weight:bold; font-size:0.85rem;">${d.marchandise}</div>
+                            <div style="font-size:0.72rem; color:#64748b;">${d.origine} ➔ ${d.destination} (${d.poids} kg)</div>
+                        </div>
+                    </div>
+                    <span class="price-badge" style="font-size:0.85rem; padding:3px 8px;">${d.prix.toLocaleString()} F</span>
+                </div>
+            `).join('');
+
+            const commList = document.getElementById('commercantMesLots');
+            commList.innerHTML = dbDemandes.map(d => {
+                let action = '';
+                if (d.statut === 'OUVERT') {
+                    if (d.chauffeurPropose) {
+                        action = `
+                            <div style="background:#f1f5f9; padding:8px; border-radius:8px; margin:8px 0; font-size:0.76rem;">
+                                🚚 <b>Offre Chauffeur :</b> ${d.chauffeurPropose} propose <b>${d.prix.toLocaleString()} FCFA</b>
+                            </div>
+                            <button class="btn btn-wave" onclick="payerSequestreWave('${d.id}')">
+                                🔒 Payer en Séquestre Wave (${d.prix.toLocaleString()} FCFA)
+                            </button>
+                        `;
+                    } else {
+                        action = `<div style="background:#fef3c7; color:#92400e; padding:6px; border-radius:6px; font-size:0.75rem; font-weight:bold;">🔔 En ligne : Camionneurs informés dans la zone</div>`;
+                    }
+                } else if (d.statut === 'SEQUESTRE_BLOQUE') {
+                    action = `
+                        <div style="background:#ecfdf5; border:1px solid #10b981; border-radius:8px; padding:8px; margin-top:8px;">
+                            <div style="font-size:0.82rem; color:#065f46; font-weight:800;">✅ Séquestre Wave Actif (${d.prix.toLocaleString()} FCFA)</div>
+                            <div style="font-size:0.74rem; color:#047857;">Le camionneur roule vers ${d.destinataire.nom}.</div>
+                        </div>
+                    `;
+                } else {
+                    action = `<div style="background:#eff6ff; color:#1e40af; padding:6px; border-radius:6px; font-size:0.75rem; font-weight:bold;">🎉 Livraison Validée & Soldée !</div>`;
+                }
+
+                return `
+                    <div style="border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-bottom:12px;">
+                        <div class="cargo-preview-row">
+                            <div class="cargo-thumb"><img src="${d.photo}" alt="${d.marchandise}" /></div>
+                            <div style="flex:1;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                    <b>Lot #${d.id} : ${d.marchandise}</b>
+                                    <span class="price-badge">${d.prix.toLocaleString()} F</span>
+                                </div>
+                                <div style="font-size:0.74rem; color:#64748b;">${d.origine} ➔ ${d.destination} (${d.poids} kg)</div>
+                            </div>
+                        </div>
+                        <div style="font-size:0.74rem; color:#0284c7; background:#f0f9ff; padding:6px 8px; border-radius:6px; margin:6px 0;">
+                            🏪 <b>Destinataire :</b> ${d.destinataire.nom} (${d.destinataire.tel})<br/>
+                            📍 Adresse : ${d.destinataire.adresse}
+                        </div>
+                        ${action}
+                    </div>
+                `;
+            }).join('');
+
+            const camionBourse = document.getElementById('camionneurBourseList');
+            const lotsOuverts = dbDemandes.filter(d => d.statut === 'OUVERT');
+            if (lotsOuverts.length === 0) {
+                camionBourse.innerHTML = `<div style="text-align:center; padding:12px; color:#64748b; font-size:0.8rem;">Aucune annonce en brousse pour le moment.</div>`;
+            } else {
+                camionBourse.innerHTML = lotsOuverts.map(d => {
+                    const postule = d.chauffeurPropose !== null;
+                    return `
+                        <div style="border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-bottom:12px;">
+                            <div class="cargo-preview-row">
+                                <div class="cargo-thumb"><img src="${d.photo}" alt="${d.marchandise}" /></div>
+                                <div style="flex:1;">
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <b>Lot #${d.id} : ${d.marchandise}</b>
+                                        <span class="price-badge">${d.prix.toLocaleString()} F</span>
+                                    </div>
+                                    <div style="font-size:0.74rem; color:#64748b;">
+                                        ${d.origine} ➔ ${d.destination} (${d.poids} kg)
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="font-size:0.74rem; color:#0284c7; background:#f0f9ff; padding:6px 8px; border-radius:6px; margin-bottom:8px;">
+                                🏪 Livrer à : <b>${d.destinataire.nom}</b> (${d.destinataire.adresse})
+                            </div>
+                            <button class="btn ${postule ? 'btn-wave' : 'btn-camion'}" onclick="postulerOffreCamionneur('${d.id}')">
+                                ${postule ? '✅ Offre transmise (Attente Wave)' : '🤝 Postuler & Prendre cette Cargaison'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const lotTransit = dbDemandes.find(d => d.statut === 'SEQUESTRE_BLOQUE');
+            const camionBox = document.getElementById('camionLivraisonBox');
+            if (lotTransit) {
+                activeLotPourOtp = lotTransit;
+                camionBox.style.display = 'block';
+                camionBox.querySelector('.card-title').innerText = `🏁 Déchargement Lot #${lotTransit.id} chez ${lotTransit.destinataire.nom}`;
+            } else {
+                camionBox.style.display = 'none';
+            }
+
+            const destList = document.getElementById('destinataireColisList');
+            const colisDest = dbDemandes.filter(d => d.statut === 'SEQUESTRE_BLOQUE');
+            if (colisDest.length === 0) {
+                destList.innerHTML = `<div style="text-align:center; padding:14px; color:#64748b; font-size:0.82rem;">Aucun colis en cours de transport vers votre dépôt.</div>`;
+            } else {
+                destList.innerHTML = colisDest.map(d => `
+                    <div style="border:1px solid #bfdbfe; background:#f0f9ff; border-radius:12px; padding:14px; margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <b style="color:#0369a1;">Lot #${d.id} : ${d.marchandise} (${d.poids} kg)</b>
+                            <span style="background:#bae6fd; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:0.72rem; font-weight:bold;">En transit</span>
+                        </div>
+                        <div style="font-size:0.78rem; color:#0284c7; margin:6px 0;">
+                            Origine : ${d.origine} | Expéditeur : ${d.commercant}<br/>
+                            Lieu de déchargement : <b>${d.destinataire.adresse}</b>
+                        </div>
+                        <div style="background:white; border:2px dashed #0284c7; border-radius:10px; padding:12px; text-align:center; margin-top:8px;">
+                            <div style="font-size:0.76rem; color:#64748b;">Code Secret OTP ou QR Code de Validation :</div>
+                            <div style="font-size:1.8rem; letter-spacing:6px; font-weight:900; color:#0284c7; margin:4px 0;">
+                                ${d.otp}
+                            </div>
+                            <div style="margin:6px 0;">
+                                <svg width="70" height="70" viewBox="0 0 100 100">
+                                    <rect width="100" height="100" fill="#f8fafc"/>
+                                    <rect x="10" y="10" width="30" height="30" fill="#0284c7"/>
+                                    <rect x="60" y="10" width="30" height="30" fill="#0284c7"/>
+                                    <rect x="10" y="60" width="30" height="30" fill="#0284c7"/>
+                                    <rect x="20" y="20" width="10" height="10" fill="white"/>
+                                    <rect x="70" y="20" width="10" height="10" fill="white"/>
+                                    <rect x="20" y="70" width="10" height="10" fill="white"/>
+                                    <rect x="50" y="50" width="15" height="15" fill="#0284c7"/>
+                                    <rect x="70" y="70" width="15" height="15" fill="#0284c7"/>
+                                </svg>
+                            </div>
+                            <div style="font-size:0.72rem; color:#e11d48; font-weight:700;">
+                                ⚠️ Ne montrez ce QR Code au chauffeur qu'après avoir inspecté la marchandise !
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const adminTx = document.getElementById('adminJournalTransactions');
+            adminTx.innerHTML = dbDemandes.map(d => `
+                <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9;">
+                    <span>Lot #${d.id} (${d.origine} ➔ ${d.destination})</span>
+                    <b style="color:${d.statut === 'LIVRE' ? '#10b981' : (d.statut === 'SEQUESTRE_BLOQUE' ? '#1e3a8a' : '#64748b')};">
+                        ${d.prix.toLocaleString()} FCFA [${d.statut}]
+                    </b>
+                </div>
+            `).join('');
+        }
+
+        function soumettreAnnonceCommercant(e) {
+            e.preventDefault();
+            const march = document.getElementById('comMarchandise').value;
+            const poids = parseInt(document.getElementById('comPoids').value);
+            const org = document.getElementById('comOrigine').value;
+            const dst = document.getElementById('comDestination').value;
+            const prix = parseInt(document.getElementById('comPrix').value);
+
+            const destNom = document.getElementById('comDestNom').value;
+            const destTel = document.getElementById('comDestTel').value;
+            const destAdr = document.getElementById('comDestAdresse').value;
+
+            const newId = (100 + dbDemandes.length + 1).toString();
+            const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+            dbDemandes.unshift({
+                id: newId,
+                marchandise: march,
+                photo: "assets/sacs_recoltes.jpg",
+                poids: poids,
+                origine: org,
+                destination: dst,
+                prix: prix,
+                commercant: sessionActive.nom,
+                destinataire: { nom: destNom, tel: destTel, adresse: destAdr },
+                chauffeurPropose: null,
+                statut: "OUVERT",
+                otp: newOtp
+            });
+
+            e.target.reset();
+            synchroniserDonnees();
+            showToast("🎉 Annonce publiée avec succès !");
+            alert(`✅ Annonce #${newId} enregistrée !
+Les camionneurs en Casamance voient maintenant votre offre.`);
+        }
+
+        function postulerOffreCamionneur(lotId) {
+            const lot = dbDemandes.find(d => d.id === lotId);
+            if (lot) {
+                lot.chauffeurPropose = `${sessionActive.nom} (4.9 ★)`;
+                synchroniserDonnees();
+                alert(`🤝 Proposition envoyée pour le Lot #${lotId} !
+Le commerçant est notifié pour bloquer le paiement en séquestre Wave.`);
+            }
+        }
+
+        function payerSequestreWave(lotId) {
+            const lot = dbDemandes.find(d => d.id === lotId);
+            if (lot) {
+                lot.statut = "SEQUESTRE_BLOQUE";
+                synchroniserDonnees();
+                alert(`🔒 PAIEMENT SÉQUESTRÉ PAR WAVE !
+
+• Montant bloqué : ${lot.prix.toLocaleString()} FCFA
+• Le camionneur a pris la route.
+• L'OTP / QR Code a été généré pour le destinataire (${lot.destinataire.nom}).`);
+            }
+        }
+
+        function ouvrirModalSaisieOtpChauffeur() {
+            document.getElementById('otpChauffeurInput').value = '';
+            document.getElementById('modalOtpChauffeur').style.display = 'flex';
+        }
+        function fermerModalOtpChauffeur() {
+            document.getElementById('modalOtpChauffeur').style.display = 'none';
+        }
+
+        function simulerScanQrCode() {
+            if (activeLotPourOtp) {
+                document.getElementById('otpChauffeurInput').value = activeLotPourOtp.otp;
+                showToast("📷 QR Code scanné avec succès !");
+            }
+        }
+
+        function validerOtpParChauffeur() {
+            if (!activeLotPourOtp) return;
+            const code = document.getElementById('otpChauffeurInput').value.trim();
+
+            if (code !== activeLotPourOtp.otp) {
+                alert("❌ OTP Invalide ! Demandez le code ou le QR Code au destinataire.");
+                return;
+            }
+
+            const total = activeLotPourOtp.prix;
+            const comm = total * 0.05;
+            const netChauffeur = total * 0.95;
+
+            activeLotPourOtp.statut = "LIVRE";
+            fermerModalOtpChauffeur();
+            synchroniserDonnees();
+
+            document.getElementById('modalNotation').style.display = 'flex';
+        }
+
+        function enregistrerNotation() {
+            document.getElementById('modalNotation').style.display = 'none';
+            alert(`🎉 VIREMENT WAVE CONFIRMÉ !
+
+• Virement au chauffeur (95%) : +${(activeLotPourOtp.prix * 0.95).toLocaleString()} FCFA
+• Commission E-Dépôt (5%) : +${(activeLotPourOtp.prix * 0.05).toLocaleString()} FCFA
+• Note 5/5 enregistrée dans le score de réputation !`);
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 2600);
+        }
+
+        window.onload = function() {
+            initMap();
+            remplirIdentifiantsDemo();
+            synchroniserDonnees();
+        };
+    </script>
+</body>
+</html>

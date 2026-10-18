@@ -1,0 +1,55 @@
+:root {
+  /* Direction Artistique : African Logistics Tech */
+  --color-primary: #123B2A;         /* Vert forêt profond */
+  --color-primary-light: #236B4A;   /* Vert secondaire */
+  --color-primary-dark: #0A2218;
+  --color-accent: #E88945;          /* Orange terre cuite */
+  --color-accent-hover: #D37532;
+  --color-accent-light: #FCEFE6;
+  
+  --color-bg: #F8F7F2;              /* Ivoire clair */
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F2F0E8;
+  --color-surface-sunken: #ECEAE2;
+  
+  --color-text-main: #202820;       /* Texte principal */
+  --color-text-muted: #727A72;      /* Texte secondaire */
+  --color-text-inverse: #FFFFFF;
+  
+  --color-border: #E6E8E1;          /* Bordures discrètes */
+  --color-border-focus: #123B2A;
+  
+  /* Statuts fonctionnels */
+  --color-success: #1E7E45;
+  --color-success-bg: #EAF7EE;
+  --color-warning: #B57414;
+  --color-warning-bg: #FFF8E6;
+  --color-danger: #C0392B;          /* Rouge réservé aux erreurs critiques */
+  --color-danger-bg: #FDE8E8;
+  --color-info: #1F6F8B;
+  --color-info-bg: #E8F4F8;
+
+  /* Typographie */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Manrope', 'Inter', system-ui, sans-serif;
+
+  /* Rayons & Ombres */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(18, 59, 42, 0.05);
+  --shadow-md: 0 4px 12px rgba(18, 59, 42, 0.08);
+  --shadow-lg: 0 10px 25px rgba(18, 59, 42, 0.12);
+  --shadow-dropdown: 0 10px 30px rgba(0, 0, 0, 0.12);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+
+  /* Largeurs de grille */
+  --max-width: 1240px;
+  --sidebar-width: 260px;
+  --topbar-height: 68px;
+}

@@ -1,0 +1,16 @@
+{
+  "name": "E-Dépôt",
+  "short_name": "E-Dépôt",
+  "description": "Plateforme logistique pour commerçants et transporteurs en Casamance",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8F7F2",
+  "theme_color": "#123B2A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

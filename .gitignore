@@ -1,0 +1,71 @@
+# ==============================================================================
+# Fichier .gitignore pour la plateforme E-DÉPÔT (Spring Boot + React + Vite)
+# ==============================================================================
+
+# Node / Frontend
+node_modules/
+*/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+*/dist/
+build/
+*/build/
+out/
+.vite/
+*/.vite/
+*.tsbuildinfo
+
+# Java / Maven / Backend
+target/
+*/target/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Bases de données locales et fichiers temporaires
+backend/data/
+data/
+*.mv.db
+*.trace.db
+
+# Variables d'environnement et secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+!.env.example
+
+# IDE & Editeurs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS & Système
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini

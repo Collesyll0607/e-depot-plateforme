@@ -1,0 +1,377 @@
+openapi: 3.0.3
+info:
+  title: API E-Dépôt — Plateforme Logistique & Séquestre Casamance
+  description: |
+    Spécification OpenAPI 3.0 complète pour la plateforme E-Dépôt (Projet 10 - UASZ L3 Informatique).
+    Mise en relation commerçants/agriculteurs ↔ camionneurs ↔ destinataires en Casamance,
+    sécurisation financière par séquestre Wave Sandbox (commission 5 %), validation par code OTP et gestion des litiges.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Serveur Spring Boot Local
+
+paths:
+  # ==================== AUTHENTIFICATION ====================
+  /auth/login:
+    post:
+      summary: Connexion utilisateur
+      tags: [Authentification]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, motDePasse]
+              properties:
+                email: { type: string, example: "aissatou@edepot.sn" }
+                motDePasse: { type: string, example: "Passer123!" }
+      responses:
+        '200':
+          description: Connexion réussie, renvoie le token JWT et les informations de profil.
+        '401':
+          description: Identifiants invalides.
+
+  /auth/register:
+    post:
+      summary: Inscription avec choix du rôle (COMMERCANT, CAMIONNEUR, DESTINATAIRE)
+      tags: [Authentification]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nom, email, telephone, motDePasse, role]
+              properties:
+                nom: { type: string }
+                email: { type: string }
+                telephone: { type: string }
+                motDePasse: { type: string }
+                role: { type: string, enum: [COMMERCANT, CAMIONNEUR, DESTINATAIRE] }
+                nomEntreprise: { type: string }
+                typeCamion: { type: string }
+                capaciteKg: { type: number }
+                immatriculation: { type: string }
+      responses:
+        '201':
+          description: Compte créé avec succès.
+
+  /auth/me:
+    get:
+      summary: Informations du profil connecté
+      tags: [Authentification]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Données utilisateur.
+
+  # ==================== DEMANDES DE FRET ====================
+  /demandes:
+    get:
+      summary: Lister les demandes de fret (avec filtres optionnels)
+      tags: [Demandes]
+      parameters:
+        - name: commercantId
+          in: query
+          schema: { type: string }
+        - name: statut
+          in: query
+          schema: { type: string }
+        - name: zone
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Liste des demandes.
+    post:
+      summary: Publier une nouvelle demande de fret
+      tags: [Demandes]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [origine, destination, dateChargement, typeMarchandise, poidsKg, prixPropose, destinataire]
+              properties:
+                origine: { type: string, example: "Kafountine" }
+                destination: { type: string, example: "Ziguinchor" }
+                dateChargement: { type: string, format: date }
+                dateLivraisonSouhaitee: { type: string, format: date }
+                typeMarchandise: { type: string }
+                poidsKg: { type: number }
+                volumeM3: { type: number }
+                instructionsManutention: { type: string }
+                prixPropose: { type: number }
+                destinataire:
+                  type: object
+                  required: [nom, telephone, adresse, ville]
+                  properties:
+                    nom: { type: string }
+                    telephone: { type: string }
+                    adresse: { type: string }
+                    ville: { type: string }
+      responses:
+        '201':
+          description: Demande publiée.
+
+  /demandes/{id}/annuler:
+    post:
+      summary: Annuler une demande de fret
+      tags: [Demandes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Demande annulée.
+
+  # ==================== OFFRES DE TRANSPORT ====================
+  /offres:
+    get:
+      summary: Consulter les offres soumises
+      tags: [Offres]
+      parameters:
+        - name: demandeId
+          in: query
+          schema: { type: string }
+        - name: camionneurId
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Liste des offres.
+    post:
+      summary: Soumettre une proposition tarifaire (Camionneur)
+      tags: [Offres]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [demandeId, prixPropose, conditions]
+              properties:
+                demandeId: { type: string }
+                prixPropose: { type: number }
+                dateDisponible: { type: string }
+                conditions: { type: string }
+      responses:
+        '201':
+          description: Offre créée.
+
+  /offres/{id}/accepter:
+    post:
+      summary: Retenir une offre et créer l'expédition (Commerçant)
+      tags: [Offres]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Offre acceptée, expédition créée en attente de séquestre.
+
+  /offres/{id}/contre-proposition:
+    post:
+      summary: Émettre une contre-offre de prix négociée
+      tags: [Offres]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prix, message, auteurRole]
+              properties:
+                prix: { type: number }
+                message: { type: string }
+                auteurRole: { type: string, enum: [COMMERCANT, CAMIONNEUR] }
+      responses:
+        '200':
+          description: Contre-proposition enregistrée.
+
+  # ==================== EXPÉDITIONS & SÉQUESTRE ====================
+  /expeditions:
+    get:
+      summary: Consulter les expéditions en cours ou passées
+      tags: [Expéditions]
+      responses:
+        '200':
+          description: Liste des expéditions.
+
+  /expeditions/{id}/payer-sequestre:
+    post:
+      summary: Initier le versement sous séquestre Wave Sandbox (5 % retenus, 95 % consignés)
+      tags: [Séquestre Wave]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [waveNumero]
+              properties:
+                waveNumero: { type: string, example: "+221 77 123 45 67" }
+      responses:
+        '200':
+          description: Séquestre bloqué, le transporteur peut charger.
+
+  /expeditions/{id}/statut:
+    patch:
+      summary: Mettre à jour l'état de transit (CHARGEE, EN_ROUTE, LIVREE_A_CONFIRMER)
+      tags: [Expéditions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [statut]
+              properties:
+                statut: { type: string }
+                note: { type: string }
+      responses:
+        '200':
+          description: Statut actualisé.
+
+  /expeditions/{id}/valider-otp:
+    post:
+      summary: Validation définitive de réception par code OTP et déblocage du paiement
+      tags: [Séquestre Wave]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [codeOtp]
+              properties:
+                codeOtp: { type: string, example: "4829" }
+      responses:
+        '200':
+          description: Code valide, fonds transférés au camionneur et transaction clôturée.
+        '400':
+          description: Code OTP erroné.
+
+  # ==================== LITIGES & ÉVALUATIONS ====================
+  /litiges:
+    get:
+      summary: Liste des réclamations et litiges
+      tags: [Litiges]
+      responses:
+        '200':
+          description: Liste des litiges.
+    post:
+      summary: Ouvrir une réclamation contradictoire (gèle le séquestre)
+      tags: [Litiges]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expeditionId, motif, description]
+              properties:
+                expeditionId: { type: string }
+                motif: { type: string }
+                description: { type: string }
+      responses:
+        '201':
+          description: Litige ouvert.
+
+  /litiges/{id}/arbitrer:
+    post:
+      summary: Rendre une décision arbitrale (Administrateur)
+      tags: [Litiges]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [resolution, motif]
+              properties:
+                resolution: { type: string, enum: [LIBERATION_CAMIONNEUR, REMBOURSEMENT_TOTAL, REMBOURSEMENT_PARTIEL] }
+                motif: { type: string }
+                montantRembourse: { type: number }
+      responses:
+        '200':
+          description: Décision enregistrée et fonds réalloués.
+
+  /evaluations:
+    get:
+      summary: Consulter les avis bilatéraux
+      tags: [Évaluations]
+      responses:
+        '200':
+          description: Avis.
+    post:
+      summary: Laisser un avis et une note après livraison
+      tags: [Évaluations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expeditionId, cibleId, note, commentaire]
+              properties:
+                expeditionId: { type: string }
+                cibleId: { type: string }
+                note: { type: number, minimum: 1, maximum: 5 }
+                commentaire: { type: string }
+      responses:
+        '201':
+          description: Avis publié.
+
+  /admin/stats:
+    get:
+      summary: Indicateurs consolidés de la plateforme
+      tags: [Administration]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Statistiques d'activité, flux financiers et litiges.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
