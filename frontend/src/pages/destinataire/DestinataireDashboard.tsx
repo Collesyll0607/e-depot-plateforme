@@ -154,8 +154,8 @@ export const DestinataireDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Bannière SMS OTP simulée en mode démo */}
-                {api.isDemo && exp.codeOtp && (
+                {/* Bannière SMS OTP simulée pour les tests & soutenance */}
+                {exp.codeOtp && (
                   <div
                     style={{
                       padding: '1rem',

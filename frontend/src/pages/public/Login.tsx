@@ -44,10 +44,18 @@ const TEST_PROFILES: TestProfile[] = [
   },
   {
     role: 'DESTINATAIRE',
-    label: 'Destinataire',
+    label: 'Destinataire (Ziguinchor)',
     nom: 'Ousmane Sané',
     sousTitre: 'Marché Tilène Gros',
     email: 'ousmane@edepot.sn',
+    motDePasse: 'Passer123!',
+  },
+  {
+    role: 'DESTINATAIRE_AMADOU',
+    label: 'Destinataire (Dakar)',
+    nom: 'Amadou Fall',
+    sousTitre: 'Marché Syndicat Pikine',
+    email: 'amadou@edepot.sn',
     motDePasse: 'Passer123!',
   },
   {

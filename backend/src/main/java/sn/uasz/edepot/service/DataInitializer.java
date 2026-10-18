@@ -187,6 +187,20 @@ public class DataInitializer implements CommandLineRunner {
                 "Ziguinchor",
                 "Boutique Centrale Tilène"
         );
+
+        // Destinataire Amadou Fall (Point d'arrivée Dakar - Marché Syndicat)
+        createUserIfNotExists(
+                "dest-amadou-01",
+                "amadou@edepot.sn",
+                "Amadou Fall",
+                "+221776543210",
+                "Passer123!",
+                UserRole.DESTINATAIRE,
+                "Grossiste Fruits Pikine",
+                "Commerce de gros fruits & légumes",
+                "Dakar",
+                "Marché Syndicat Pikine, Hangar 4"
+        );
     }
 
     private User createUserIfNotExists(

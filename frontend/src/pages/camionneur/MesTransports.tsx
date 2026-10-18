@@ -506,22 +506,49 @@ export const MesTransports: React.FC = () => {
               Demandez au destinataire (<strong>{selectedExpedition.destinataire.nom}</strong>) le code à 4 chiffres qu'il a reçu par SMS.
             </p>
 
-            {api.isDemo && selectedExpedition.codeOtp && (
+            {selectedExpedition.codeOtp && (
               <div
                 style={{
-                  padding: '0.75rem 1rem',
-                  backgroundColor: 'var(--color-info-bg)',
-                  border: '1px solid rgba(31,111,139,0.25)',
+                  padding: '0.85rem 1rem',
+                  backgroundColor: '#F0FDF4',
+                  border: '1px solid #BBF7D0',
                   borderRadius: 'var(--radius-md)',
                   marginBottom: '1.25rem',
                   fontSize: '0.85rem',
-                  color: 'var(--color-info)',
+                  color: '#166534',
                 }}
               >
-                <strong>Indication Démo :</strong> Le code OTP simulé envoyé au destinataire est :{' '}
-                <strong style={{ fontSize: '1.1rem', letterSpacing: '2px', color: '#123B2A' }}>
-                  {selectedExpedition.codeOtp}
-                </strong>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                  <div>
+                    <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>📲 SMS Destinataire (Simulation de test) :</span>
+                    </div>
+                    <div style={{ fontSize: '0.82rem', marginTop: '3px', color: '#15803D' }}>
+                      « E-Dépôt : Votre code de livraison est le{' '}
+                      <strong style={{ fontSize: '1.15rem', color: '#123B2A', letterSpacing: '2px' }}>
+                        {selectedExpedition.codeOtp}
+                      </strong>{' '}
+                      »
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCodeOtp(selectedExpedition.codeOtp || '')}
+                    className="btn btn-outline"
+                    style={{
+                      fontSize: '0.75rem',
+                      padding: '4px 10px',
+                      height: 'auto',
+                      whiteSpace: 'nowrap',
+                      borderColor: '#86EFAC',
+                      color: '#166534',
+                      backgroundColor: '#FFFFFF',
+                      fontWeight: 600,
+                    }}
+                  >
+                    Remplir ({selectedExpedition.codeOtp})
+                  </button>
+                </div>
               </div>
             )}
 
