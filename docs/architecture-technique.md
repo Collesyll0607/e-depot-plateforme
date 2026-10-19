@@ -1,19 +1,36 @@
-# Architecture technique – E-Dépôt
+# Documentation technique et architecture – E-Dépôt
 
-## 1. Objectif du système
+## 1. Contexte du projet
 
-E-Dépôt est une plateforme de logistique et de séquestre de fret pour les acteurs du transport en Casamance et dans les zones rurales du Sénégal. Elle permet :
+E-Dépôt est une plateforme de gestion logistique et de séquestre de fret conçue pour faciliter les transactions entre commerçants, transporteurs et destinataires dans les zones rurales du Sénégal, notamment en Casamance.
 
-- la publication de demandes de transport,
-- la réception et la négociation des offres,
-- la sécurisation du paiement via un mécanisme de séquestre,
-- le suivi d’une expédition,
-- la validation de livraison par OTP,
-- la gestion des litiges et le suivi administratif.
+Le système vise à résoudre plusieurs problèmes récurrents :
 
-Le système est conçu selon une architecture web moderne avec un frontend React, un backend Spring Boot et une base de données relationnelle.
+- manque de visibilité sur les offres de transport disponibles,
+- difficulté de sécurisation des paiements entre parties,
+- faiblesse de la traçabilité des expéditions,
+- manque de mécanismes de validation de livraison,
+- difficultés de gestion des litiges et du suivi administratif.
 
-## 2. Architecture globale
+L’application propose un modèle de transaction fiable dans lequel les fonds sont sécurisés avant déblocage, avec validation de livraison et suivi des étapes du transport.
+
+## 2. Objectif général
+
+Le système a pour objectif de :
+
+- mettre en relation les acteurs du secteur logistique,
+- sécuriser les transactions financières,
+- assurer le suivi des expéditions,
+- centraliser la gestion des litiges,
+- fournir un tableau de bord administratif exploitable.
+
+## 3. Architecture générale du système
+
+Le projet repose sur une architecture client-serveur moderne, structurée en trois couches principales :
+
+- Couche présentation : frontend React + Vite,
+- Couche application : backend Spring Boot,
+- Couche persistance : base de données relationnelle (PostgreSQL / H2).
 
 ```mermaid
 flowchart LR
@@ -27,11 +44,20 @@ flowchart LR
     S --> OTP[OTP / validation destinataire]
 ```
 
-## 3. Composants du projet
+## 4. Architecture logicielle
 
-### 3.1 Frontend
+### 4.1 Frontend
 
-Technologies :
+Le frontend est développé avec React et TypeScript. Il permet :
+
+- la gestion des écrans par profil utilisateur,
+- la consultation des demandes disponibles,
+- la soumission et la négociation des offres,
+- la prise en charge du suivi d’expédition,
+- la gestion des statuts et des tableaux de bord.
+
+Technologies utilisées :
+
 - React 18
 - TypeScript
 - Vite
@@ -39,15 +65,12 @@ Technologies :
 - Leaflet
 - Lucide React
 
-Rôle :
-- afficher les interfaces utilisateur,
-- gérer les parcours par rôle,
-- appeler l’API backend,
-- présenter les statuts de transport, les offres et les données financières.
+### 4.2 Backend
 
-### 3.2 Backend
+Le backend est basé sur Spring Boot 3. Il centralise la logique métier, la sécurité et l’accès aux données.
 
-Technologies :
+Technologies utilisées :
+
 - Java 17+
 - Spring Boot 3
 - Spring Web
@@ -57,27 +80,171 @@ Technologies :
 - JWT
 - OpenAPI / Swagger
 
-Rôle :
-- exposer l’API REST,
-- organiser la logique métier,
-- sécuriser les accès,
-- gérer les transactions et les statuts d’expédition,
-- imposer les règles de validation métier.
+Le backend assure :
 
-### 3.3 Base de données
+- la gestion de l’authentification,
+- la protection des routes sécurisées,
+- le contrôle des rôles,
+- la validation des demandes et des offres,
+- la gestion du séquestre financier,
+- la logique de validation de la livraison,
+- la gestion des litiges et du reporting administratif.
 
-Le projet est compatible PostgreSQL et dispose également d’une persistance locale en base H2 disque pour le développement et les tests.
+### 4.3 Base de données
 
-Les données principales portent sur :
+Le système fonctionne avec une base de données relationnelle. En environnement de développement, il est compatible avec une base H2 locale, et en environnement de production, il peut être déployé sur PostgreSQL.
+
+Les données concernent principalement :
+
 - les utilisateurs,
-- les demandes,
-- les offres,
+- les demandes de transport,
+- les offres de transport,
 - les expéditions,
-- les transactions,
+- les transactions financières,
 - les litiges,
 - les évaluations.
 
-## 4. Structure du dépôt
+## 5. Diagramme de cas d’utilisation
+
+```mermaid
+flowchart LR
+    U[Utilisateur] --> A[Créer un compte]
+    U --> B[Se connecter]
+    A --> C[Commerçant]
+    A --> D[Camionneur]
+    A --> E[Destinataire]
+    C --> C1[Publier une demande]
+    C --> C2[Accepter une offre]
+    D --> D1[Soumettre une offre]
+    D --> D2[Suivre la route]
+    E --> E1[Valider la livraison]
+    ADM[Administrateur] --> A1[Consulter les statiques]
+    ADM --> A2[Gérer les litiges]
+```
+
+## 6. Diagramme de classes métier
+
+```mermaid
+classDiagram
+    class User {
+        +Long id
+        +String nom
+        +String email
+        +String telephone
+        +String motDePasse
+        +UserRole role
+    }
+
+    class DemandeTransport {
+        +Long id
+        +String origine
+        +String destination
+        +Double poids
+        +BigDecimal prix
+        +StatutDemande statut
+    }
+
+    class OffreTransport {
+        +Long id
+        +BigDecimal montant
+        +StatutOffre statut
+    }
+
+    class Expedition {
+        +Long id
+        +String codeOtp
+        +StatutExpedition statut
+        +Date dateDepart
+        +Date dateArrivee
+    }
+
+    class Transaction {
+        +Long id
+        +BigDecimal montant
+        +String typeOperation
+        +StatutPaiement statut
+    }
+
+    class Litige {
+        +Long id
+        +String motif
+        +StatutLitige statut
+    }
+
+    class Evaluation {
+        +Long id
+        +int note
+        +String commentaire
+    }
+
+    User "1" --> "0..*" DemandeTransport
+    User "1" --> "0..*" OffreTransport
+    DemandeTransport "1" --> "0..*" OffreTransport
+    DemandeTransport "1" --> "0..1" Expedition
+    Expedition "1" --> "0..*" Transaction
+    User "1" --> "0..*" Litige
+    User "1" --> "0..*" Evaluation
+```
+
+## 7. Diagramme de séquence principal
+
+```mermaid
+sequenceDiagram
+    actor Commercant
+    actor Camionneur
+    actor Destinataire
+    actor Admin
+    participant Frontend
+    participant API
+    participant Service
+    participant DB
+
+    Commercant->>Frontend: Publie une demande
+    Frontend->>API: POST /demandes
+    API->>Service: createDemande()
+    Service->>DB: Enregistrer DemandeTransport
+
+    Camionneur->>Frontend: Consulte les demandes
+    Frontend->>API: GET /demandes
+    API->>Service: getDemandesDisponibles()
+    Service->>DB: Lecture des demandes actives
+
+    Camionneur->>Frontend: Soumet une offre
+    Frontend->>API: POST /offres
+    API->>Service: createOffre()
+    Service->>DB: Enregistrer OffreTransport
+
+    Commercant->>Frontend: Accepte l’offre
+    Frontend->>API: PATCH /offres/{id}/accepter
+    API->>Service: accepterOffre()
+    Service->>DB: Créer Expedition + Transaction
+
+    Destinataire->>Frontend: Saisit code OTP
+    Frontend->>API: POST /expeditions/{id}/otp
+    API->>Service: validerLivraison()
+    Service->>DB: Mise à jour du statut
+
+    Admin->>Frontend: Consulte statistiques et litiges
+    Frontend->>API: GET /admin/stats
+    API->>Service: getStats()
+    Service->>DB: Retourne synthèse du système
+```
+
+## 8. Diagramme de composants
+
+```mermaid
+flowchart LR
+    U[Utilisateur] --> F[Frontend React]
+    F --> API[API REST Spring Boot]
+    API --> S[Services métiers]
+    S --> R[Repositories JPA]
+    R --> DB[(Base de données)]
+    API --> SEC[Spring Security + JWT]
+    S --> W[Wave Sandbox / Séquestre]
+    S --> OTP[OTP validation]
+```
+
+## 9. Structure du dépôt
 
 ```text
 E-DEPOT_PLATEFORME/
@@ -88,7 +255,7 @@ E-DEPOT_PLATEFORME/
 │   │   ├── model/
 │   │   ├── repository/
 │   │   ├── security/
-│   │   └── service/
+│   │   └���─ service/
 │   ├── pom.xml
 │   └── .env.example
 ├── frontend/
@@ -114,147 +281,91 @@ E-DEPOT_PLATEFORME/
 └── package-lock.json
 ```
 
-## 5. Séparation des rôles et accès
+## 10. Rôles fonctionnels et accès
 
-Le système distingue plusieurs profils :
+Le système distingue plusieurs types d’utilisateurs :
 
-- Commerçant / Agriculteur
-- Camionneur / Transporteur
-- Destinataire
-- Administrateur
+- Commerçant / Agriculteur : publie des demandes, négocie et valide les offres.
+- Camionneur / Transporteur : soumet des offres et suit les expéditions.
+- Destinataire : valide les livraisons par OTP.
+- Administrateur : surveille les performances, les litiges et les transactions.
 
-Chaque profil possède des vues et des responsabilités spécifiques :
+Cette séparation des rôles permet une meilleure sécurité, une meilleure traçabilité et un meilleur découpage fonctionnel.
 
-- Commerçant : publie des demandes, négocie, valide les offres, sécurise le paiement.
-- Camionneur : consulte les demandes, formule des offres, suit la livraison.
-- Destinataire : reçoit la marchandise, valide par OTP, confirme la livraison.
-- Administrateur : contrôle les comptes, litiges, volumes financiers et statistiques.
+## 11. Sécurité et authentification
 
-## 6. Flux fonctionnel principal
+Le projet intègre des mécanismes de sécurité rigoureux :
 
-```mermaid
-sequenceDiagram
-    actor Commercant
-    actor Camionneur
-    actor Destinataire
-    actor Admin
-    participant Frontend
-    participant API
-    participant Service
-    participant DB
+- Spring Security pour le contrôle d’accès,
+- JWT pour l’authentification,
+- BCrypt pour le hachage des mots de passe,
+- filtrage des rôles selon le type d’utilisateur,
+- protection des endpoints sensibles.
 
-    Commercant->>Frontend: Publie une demande de transport
-    Frontend->>API: POST /demandes
-    API->>Service: createDemande()
-    Service->>DB: Enregistre DemandeTransport
+En particulier, le rôle administrateur est strictement réservé à l’administration système et n’est pas proposé publiquement pendant l’inscription.
 
-    Camionneur->>Frontend: Consulte demandes disponibles
-    Frontend->>API: GET /demandes
-    API->>Service: getDemandesDisponibles()
-    Service->>DB: Recherche demandes actives
+## 12. Mécanisme de séquestre financier
 
-    Camionneur->>Frontend: Soumet une offre
-    Frontend->>API: POST /offres
-    API->>Service: createOffre()
-    Service->>DB: Enregistre OffreTransport
+Le cœur du système repose sur la sécurisation financière des transactions. Le mécanisme fonctionne comme suit :
 
-    Commercant->>Frontend: Accepte l’offre
-    Frontend->>API: PATCH /offres/{id}/accepter
-    API->>Service: accepterOffre()
-    Service->>DB: Crée une Expedition + Transaction
+- le commerçant publie une demande de transport,
+- le camionneur propose une offre,
+- la demande est acceptée après négociation,
+- le montant est mis en sécurité dans un système de séquestre,
+- la plateforme perçoit une commission de 5 %, 
+- le reste est garanti pour le transporteur,
+- la libération des fonds est conditionnée à la validation de la livraison par le destinataire via OTP.
 
-    Destinataire->>Frontend: Saisit le code OTP
-    Frontend->>API: POST /expeditions/{id}/otp
-    API->>Service: validerLivraison()
-    Service->>DB: Met à jour le statut de l’expédition
+Cette logique réduit les tensions entre partenaires, sécurise les transactions et limite les litiges.
 
-    Admin->>Frontend: Consulte services et litiges
-    Frontend->>API: GET /admin/stats
-    API->>Service: getStats()
-    Service->>DB: Retourne synthèse du système
-```
+## 13. API REST et intégration
 
-## 7. Modèle métier principal
+Le backend expose une API REST structurée par module métier :
 
-### 7.1 Entités clés
-
-- User
-- DemandeTransport
-- OffreTransport
-- Expedition
-- Transaction
-- Litige
-- Evaluation
-- OperationFinanciere
-
-### 7.2 Relations principales
-
-- Un utilisateur peut publier plusieurs demandes.
-- Une demande peut recevoir plusieurs offres.
-- Une offre est liée à un camionneur et à une demande.
-- Une demande acceptée devient une expédition.
-- Une expédition génère des transactions et peut aboutir à un litige.
-
-## 8. Sécurité et authenticité
-
-La sécurité est assurée par plusieurs couches :
-
-- Spring Security
-- JWT pour l’authentification
-- BCrypt pour le hachage des mots de passe
-- validation des rôles et des permissions
-- contrôle d’accès sur les API sensibles
-- protection des points d’inscription et d’administration
-
-Le rôle administrateur n’est pas proposé publiquement lors de l’inscription, ce qui renforce les garde-fous de sécurité.
-
-## 9. Gestion du séquestre et du paiement
-
-Le mécanisme de séquestre est central dans la plateforme :
-
-- le commerçant sécurise une partie du montant conditionnellement,
-- la plateforme perçoit une commission de 5 %,
-- le camionneur est garanti sur la partie due,
-- la libération des fonds est conditionnée à la validation de la livraison.
-
-Ce mécanisme permet de sécuriser le paiement et de réduire les risques de litiges.
-
-## 10. API REST
-
-Le backend expose une API REST structurée par domaine métier :
-
-- AuthController : connexion et inscription
-- UserController : gestion des profils
-- DemandeController : demandes de transport
-- OffreController : gestion des offres
-- ExpeditionController : suivi des expéditions
-- TransactionController : gestion des transactions
-- LitigeController : gestion des litiges
-- EvaluationController : évaluation des services
-- AdminStatsController : statistiques admins
+- AuthController : inscription et connexion
+- UserController : gestion des profils et rôles
+- DemandeController : publication et consultation des demandes
+- OffreController : gestion des offres et négociations
+- ExpeditionController : suivi de l’expédition et validation OTP
+- TransactionController : gestion des paiements et séquestre
+- LitigeController : traitement des litiges
+- EvaluationController : notation des prestations
+- AdminStatsController : supervision et statistiques
 
 La documentation OpenAPI est disponible dans le fichier `docs/openapi.yaml`.
 
-## 11. Points d’extension
+## 14. Points forts de l’architecture
 
-Le système est facilement extensible pour :
+- séparation claire entre frontend, backend et persistance,
+- gestion explicite des rôles utilisateurs,
+- logique métier centralisée dans les services Spring,
+- sécurité forte basée sur JWT et BCrypt,
+- mécanisme de séquestre adapté au contexte logistique,
+- architecture évolutive pour intégrer de nouvelles fonctionnalités.
 
-- l’ajout d’un paiement bancaire réel,
-- l’intégration de notifications SMS/WhatsApp,
-- la présence d’une cartographie plus avancée,
-- l’intégration de tracking GPS,
-- la gestion de plusieurs régions ou de nouveaux modes de transport.
+## 15. Limites et axes d’amélioration
 
-## 12. Conclusion
+Le système reste perfectible sur certains plans :
 
-L’architecture d’E-Dépôt est cohérente avec une plateforme de logistique numérique moderne : elle offre un découpage fonctionnel clair, une forte séparation des responsabilités, et un mécanisme de confiance entre commerçants, transporteurs et destinataires.
+- intégration d’un vrai paiement bancaire ou mobile,
+- notifications SMS/WhatsApp plus avancées,
+- suivi GPS en temps réel,
+- gestion plus fine des litiges et arbitrage multi-niveaux,
+- amélioration des rapports et dashboards analytiques.
 
-Cette base technique constitue un socle solide pour la maintenance, la montée en charge, les nouvelles fonctionnalités et la documentation du système.
+## 16. Conclusion
 
-## 13. Références in-repo
+E-Dépôt est une plateforme logistique orientée sécurité, traçabilité et confiance entre acteurs. Son architecture actuelle répond bien aux exigences d’un système de gestion de transport avec séquestre, validation OTP et supervision administrative.
+
+L’architecture en couches, l’usage de Spring Boot pour la logique métier et le choix d’une interface React pour la partie utilisateur permettent une bonne extensibilité et une maintenance simplifiée sur le long terme.
+
+Cette documentation technique constitue une base solide pour la compréhension, la maintenance et le développement continu du projet.
+
+## 17. Références internes au dépôt
 
 - `README.md`
 - `docs/openapi.yaml`
 - `docs/DOSSIER_CONCEPTION_EDEPOT.md`
 - `docs/DOSSIER_CONCEPTION_EDEPOT.pdf`
+- `docs/architecture-technique.md`
 
