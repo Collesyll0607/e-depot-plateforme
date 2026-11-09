@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+﻿import React from 'react';
+import { HashRouter as BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import { RequireRole } from './auth/RequireRole';
 import { PublicLayout } from './layouts/PublicLayout';
@@ -259,3 +259,4 @@ export const App: React.FC = () => {
     </BrowserRouter>
   );
 };
+

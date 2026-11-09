@@ -2,8 +2,8 @@ import { ApiClient } from './client';
 import { demoApiClient } from './demo/demoApi';
 import { HttpApiClient } from './http';
 
-// Par défaut, l'application est en mode HTTP connecté au backend réel Spring Boot + PostgreSQL
-const mode = import.meta.env.VITE_API_MODE || 'http';
+// En déploiement statique (GitHub Pages), utilise demoApiClient par défaut
+const mode = import.meta.env.VITE_API_MODE || 'demo';
 
 export const api: ApiClient = mode === 'demo' ? demoApiClient : new HttpApiClient();
 
