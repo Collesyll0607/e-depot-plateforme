@@ -1,3 +1,9 @@
+﻿> 🌐 **Démo Interactive Déployée en Ligne :** [**https://collesyll0607.github.io/e-depot-plateforme/**](https://collesyll0607.github.io/e-depot-plateforme/)
+>
+> 👩‍💻 **Portfolio de l'Auteure (Collé Syll) :** [https://collesyll0607.github.io/](https://collesyll0607.github.io/)
+
+---
+
 # E-DÉPÔT — Plateforme Logistique & Séquestre de Fret (Casamance)
 
 > **Projet 10** — Gestion de Projet Informatique Avancée (L3 Ingénierie Informatique, Université Assane Seck de Ziguinchor — UASZ).  
@@ -189,3 +195,4 @@ E-DEPOT_PLATEFORME/
 │   └── .env.example
 └── README.md
 ```
+
