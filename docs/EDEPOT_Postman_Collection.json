@@ -1,0 +1,182 @@
+{
+  "info": {
+    "_postman_id": "edepot-api-collection-2026",
+    "name": "E-DÉPÔT API — Contrat Complet (UASZ L3 Projet 10)",
+    "description": "Collection Postman exhaustive pour la plateforme E-Dépôt (Casamance, Sénégal). Couvre 100% des endpoints de l'API REST Spring Boot 3 : Authentification JWT, Gestion des Utilisateurs, Demandes de Fret, Offres & Négociations, Expéditions & Suivi GPS, Séquestre Financier Wave, Litiges & Arbitrage, Évaluations, Statistiques Admin.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8085/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentification",
+      "item": [
+        {
+          "name": "POST /auth/register - Inscription Commerçant",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Aïssatou Diatta\",\n  \"email\": \"aissatou.nouveau@edepot.sn\",\n  \"telephone\": \"+221771234567\",\n  \"motDePasse\": \"Passer123!\",\n  \"role\": \"COMMERCANT\",\n  \"nomEntreprise\": \"GIE Terroir Casamance\",\n  \"secteurActivite\": \"Agroalimentaire Fruits & Légumes\",\n  \"ville\": \"Ziguinchor\",\n  \"adresse\": \"Quartier Boucotte, Marché Tilène\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "POST /auth/login - Connexion Utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"aissatou@edepot.sn\",\n  \"motDePasse\": \"Passer123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Demandes de Fret",
+      "item": [
+        {
+          "name": "GET /demandes - Lister les demandes ouvertes",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/demandes?statut=OUVERTE", "host": ["{{baseUrl}}"], "path": ["demandes"], "query": [{ "key": "statut", "value": "OUVERTE" }] }
+          }
+        },
+        {
+          "name": "POST /demandes - Publier une demande de fret",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origine\": \"Ziguinchor (Vergers de Boutoute)\",\n  \"destination\": \"Dakar (Marché Syndicat)\",\n  \"dateChargement\": \"Demain matin 06h00\",\n  \"dateLivraisonSouhaitee\": \"Sous 24h\",\n  \"typeMarchandise\": \"Mangues Kent de Casamance\",\n  \"poidsKg\": 3500.0,\n  \"volumeM3\": 8.0,\n  \"prixPropose\": 250000.0,\n  \"instructionsManutention\": \"Arrimage soigné, bâche étanche obligatoire.\",\n  \"destinataire\": {\n    \"nom\": \"Amadou Fall\",\n    \"telephone\": \"+221776543210\",\n    \"adresse\": \"Marché Syndicat Pikine, Hangar 4\",\n    \"ville\": \"Dakar\"\n  }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/demandes", "host": ["{{baseUrl}}"], "path": ["demandes"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Offres de Transport",
+      "item": [
+        {
+          "name": "GET /offres - Consulter les offres",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/offres?demandeId=dem-cas-001", "host": ["{{baseUrl}}"], "path": ["offres"], "query": [{ "key": "demandeId", "value": "dem-cas-001" }] }
+          }
+        },
+        {
+          "name": "POST /offres/{id}/accepter - Accepter une offre",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/offres/off-cas-001/accepter", "host": ["{{baseUrl}}"], "path": ["offres", "off-cas-001", "accepter"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Expéditions & Suivi",
+      "item": [
+        {
+          "name": "GET /expeditions - Liste des expéditions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/expeditions", "host": ["{{baseUrl}}"], "path": ["expeditions"] }
+          }
+        },
+        {
+          "name": "POST /expeditions/{id}/payer-sequestre - Dépôt Séquestre Wave",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"waveNumero\": \"+221771234567\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/expeditions/exp-cas-001/payer-sequestre", "host": ["{{baseUrl}}"], "path": ["expeditions", "exp-cas-001", "payer-sequestre"] }
+          }
+        },
+        {
+          "name": "POST /expeditions/{id}/valider-otp - Confirmation de livraison OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codeOtp\": \"9713\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/expeditions/exp-cas-001/valider-otp", "host": ["{{baseUrl}}"], "path": ["expeditions", "exp-cas-001", "valider-otp"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Transactions & Séquestre",
+      "item": [
+        {
+          "name": "GET /transactions - Historique financier",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/transactions", "host": ["{{baseUrl}}"], "path": ["transactions"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Litiges & Arbitrage",
+      "item": [
+        {
+          "name": "GET /litiges - Lister les réclamations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/litiges", "host": ["{{baseUrl}}"], "path": ["litiges"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Administration & Statistiques",
+      "item": [
+        {
+          "name": "GET /admin/stats - KPI Plateforme",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/stats", "host": ["{{baseUrl}}"], "path": ["admin", "stats"] }
+          }
+        }
+      ]
+    }
+  ]
+}
