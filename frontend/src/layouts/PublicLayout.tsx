@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { Logo } from '../components/brand/Logo';
 import { DemoBanner } from '../components/domain/DemoBanner';
 import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/ui/Button';
-import { LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus, Menu, X } from 'lucide-react';
 
 export const PublicLayout: React.FC = () => {
   const { user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="public-layout">
@@ -16,7 +17,7 @@ export const PublicLayout: React.FC = () => {
       <header className="public-header">
         <div className="public-container">
           <nav className="public-nav">
-            <Logo variant="dark" size="md" />
+            <Logo variant="dark" size="sm" />
 
             <ul className="public-links">
               <li>
@@ -38,7 +39,7 @@ export const PublicLayout: React.FC = () => {
               )}
             </ul>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className="public-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               {user ? (
                 <Link
                   to={
@@ -52,27 +53,52 @@ export const PublicLayout: React.FC = () => {
                   }
                 >
                   <Button variant="primary" size="sm">
-                    Mon Espace ({user.nom.split(' ')[0]})
+                    Mon Espace
                   </Button>
                 </Link>
               ) : (
                 <>
                   <Link to="/connexion">
-                    <Button variant="outline" size="sm" icon={<LogIn size={15} />}>
+                    <Button variant="outline" size="sm" icon={<LogIn size={14} />}>
                       Connexion
                     </Button>
                   </Link>
                   <Link to="/inscription">
-                    <Button variant="accent" size="sm" icon={<UserPlus size={15} />}>
+                    <Button variant="accent" size="sm" icon={<UserPlus size={14} />}>
                       S'inscrire
                     </Button>
                   </Link>
                 </>
               )}
+
+              <button
+                type="button"
+                aria-label="Menu de navigation"
+                className="public-mobile-toggle"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
             </div>
           </nav>
         </div>
       </header>
+
+      {mobileMenuOpen && (
+        <div className="public-mobile-drawer">
+          <NavLink to="/" end onClick={() => setMobileMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>
+            Accueil
+          </NavLink>
+          <NavLink to="/fonctionnement" onClick={() => setMobileMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>
+            Comment ça marche
+          </NavLink>
+          {user && (
+            <NavLink to="/suivi" onClick={() => setMobileMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>
+              Suivi d'expédition
+            </NavLink>
+          )}
+        </div>
+      )}
 
       <main style={{ flex: 1 }}>
         <Outlet />

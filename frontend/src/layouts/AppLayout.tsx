@@ -107,6 +107,9 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="app-layout">
+      {mobileMenuOpen && (
+        <div className="sidebar-backdrop" onClick={() => setMobileMenuOpen(false)} />
+      )}
       {/* Sidebar Desktop & Mobile */}
       <aside className={`app-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="sidebar-header" style={{ justifyContent: 'space-between' }}>
@@ -196,6 +199,7 @@ export const AppLayout: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             {user.verifie && (
               <span
+                className="topbar-badge-verified"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -211,7 +215,7 @@ export const AppLayout: React.FC = () => {
                 <CheckCircle2 size={13} /> Compte vérifié
               </span>
             )}
-            <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+            <div className="topbar-email" style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
               {user.email}
             </div>
           </div>

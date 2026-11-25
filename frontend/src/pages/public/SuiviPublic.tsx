@@ -60,7 +60,7 @@ export const SuiviPublic: React.FC = () => {
           Entrez le numéro de votre expédition (ex: <code>EXP-2025-001</code>) ou le téléphone du destinataire.
         </p>
 
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
+        <form onSubmit={handleSearch} className="search-bar-form">
           <input
             type="text"
             className="form-input"

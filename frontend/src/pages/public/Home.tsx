@@ -77,7 +77,7 @@ export const Home: React.FC = () => {
                 gap: '1rem',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem', flex: 1, minWidth: '280px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem', flex: '1 1 220px', minWidth: 0 }}>
                 <div
                   style={{
                     backgroundColor: '#E88945',

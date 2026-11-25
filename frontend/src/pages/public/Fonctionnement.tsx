@@ -16,7 +16,7 @@ export const Fonctionnement: React.FC = () => {
 
       <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '3rem' }}>
         {/* Pilier 1 : La mise en relation intelligente */}
-        <div className="card" style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '1.5rem', alignItems: 'flex-start' }}>
+        <div className="card fonctionnement-step-card">
           <div style={{ width: 64, height: 64, borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Truck size={32} color="#E88945" />
           </div>
@@ -32,7 +32,7 @@ export const Fonctionnement: React.FC = () => {
         </div>
 
         {/* Pilier 2 : Le séquestre Wave 5% */}
-        <div className="card" style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '1.5rem', alignItems: 'flex-start' }}>
+        <div className="card fonctionnement-step-card">
           <div style={{ width: 64, height: 64, borderRadius: 'var(--radius-md)', backgroundColor: '#EAF7EE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ShieldCheck size={32} color="#1E7E45" />
           </div>
@@ -47,7 +47,7 @@ export const Fonctionnement: React.FC = () => {
         </div>
 
         {/* Pilier 3 : La validation OTP à destination */}
-        <div className="card" style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '1.5rem', alignItems: 'flex-start' }}>
+        <div className="card fonctionnement-step-card">
           <div style={{ width: 64, height: 64, borderRadius: 'var(--radius-md)', backgroundColor: '#E8F4F8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Smartphone size={32} color="#1F6F8B" />
           </div>
@@ -62,7 +62,7 @@ export const Fonctionnement: React.FC = () => {
         </div>
 
         {/* Pilier 4 : Arbitrage et litiges */}
-        <div className="card" style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '1.5rem', alignItems: 'flex-start' }}>
+        <div className="card fonctionnement-step-card">
           <div style={{ width: 64, height: 64, borderRadius: 'var(--radius-md)', backgroundColor: '#FFF8E6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Scale size={32} color="#B57414" />
           </div>

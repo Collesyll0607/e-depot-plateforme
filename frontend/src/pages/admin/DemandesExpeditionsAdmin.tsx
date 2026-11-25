@@ -191,7 +191,7 @@ export const DemandesExpeditionsAdmin: React.FC = () => {
 
       {/* Barre de recherche et filtres de statut */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        <div style={{ position: 'relative', minWidth: '280px', flex: 1 }}>
+        <div style={{ position: 'relative', flex: '1 1 200px', minWidth: 0 }}>
           <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
           <input
             type="text"

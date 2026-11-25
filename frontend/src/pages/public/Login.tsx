@@ -160,6 +160,8 @@ export const Login: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '0.5rem',
               marginBottom: '0.75rem',
             }}
           >
@@ -213,7 +215,7 @@ export const Login: React.FC = () => {
           </div>
 
           {/* Grille de raccourcis visuels par profil */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+          <div className="profile-grid">
             {TEST_PROFILES.map((p) => {
               const isSelected = selectedRole === p.role;
               return (

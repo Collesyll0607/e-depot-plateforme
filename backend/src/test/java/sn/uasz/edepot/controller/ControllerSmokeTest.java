@@ -21,6 +21,13 @@ class ControllerSmokeTest {
     private MockMvc mockMvc;
 
     @Test
+    @DisplayName("GET /api/v1/health - Endpoint de santé public accessible")
+    void testHealthEndpoint() throws Exception {
+        mockMvc.perform(get("/api/v1/health"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     @DisplayName("GET /api/v1/admin/stats - Accessible")
     void testAdminStatsEndpoint() throws Exception {
         mockMvc.perform(get("/api/v1/admin/stats"))

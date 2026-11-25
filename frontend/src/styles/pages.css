@@ -50,7 +50,8 @@
 
 .hero-stats {
   display: flex;
-  gap: 2.5rem;
+  flex-wrap: wrap;
+  gap: 1.5rem 2.5rem;
   margin-top: 3rem;
   padding-top: 2rem;
   border-top: 1px solid var(--color-border);
@@ -197,8 +198,53 @@
   border-color: var(--color-accent);
 }
 
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.search-bar-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.fonctionnement-step-card {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
 @media (max-width: 768px) {
+  .hero-section { padding: 2.5rem 0 2rem; }
   .hero-grid { grid-template-columns: 1fr; gap: 2rem; }
-  .hero-title { font-size: 2.25rem; }
-  .security-banner { grid-template-columns: 1fr; padding: 2rem; }
+  .hero-title { font-size: 2rem; overflow-wrap: break-word; }
+  .hero-subtitle { font-size: 1.02rem; }
+  .section { padding: 2.75rem 0; }
+  .section-title { font-size: 1.65rem; }
+  .security-banner { grid-template-columns: 1fr; padding: 1.5rem; gap: 1.5rem; }
+  .security-banner h3 { font-size: 1.5rem; }
+  .fonctionnement-step-card { grid-template-columns: 1fr; gap: 0.75rem; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 1.65rem; }
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hero-actions a, .hero-actions button {
+    width: 100%;
+  }
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+  .search-bar-form {
+    flex-direction: column;
+  }
+  .search-bar-form button {
+    width: 100%;
+  }
 }
