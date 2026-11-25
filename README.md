@@ -1,6 +1,8 @@
-﻿> 🌐 **Démo Interactive Déployée en Ligne :** [**https://collesyll0607.github.io/e-depot-plateforme/**](https://collesyll0607.github.io/e-depot-plateforme/)
+﻿> 🌐 **Application Web Déployée en Ligne (GitHub Pages) :** [**https://collesyll0607.github.io/e-depot-plateforme/**](https://collesyll0607.github.io/e-depot-plateforme/)
 >
-> 📄 **Rapport Technique Officiel (PDF, 13 pages) :** [**docs/P10_EDepot_Rapport.pdf**](docs/P10_EDepot_Rapport.pdf)
+> 🚀 **API Backend Spring Boot + PostgreSQL 18 (Render) :** [**https://edepot-api.onrender.com/api/v1/health**](https://edepot-api.onrender.com/api/v1/health) | [**Swagger UI**](https://edepot-api.onrender.com/swagger-ui.html)
+>
+> 📄 **Rapport Technique Officiel (PDF, 14 pages) :** [**docs/P10_EDepot_Rapport.pdf**](docs/P10_EDepot_Rapport.pdf)
 >
 > 📊 **Présentation de Soutenance (PowerPoint, 15 slides) :** [**docs/P10_EDepot_Presentation.pptx**](docs/P10_EDepot_Presentation.pptx)
 >
@@ -22,9 +24,9 @@
 | **1** | **Dépôt Git** | Branches `main`, `develop`, `feature/*`, historique propre | [GitHub Repository](https://github.com/Collesyll0607/e-depot-plateforme) | ✅ **100% Conforme** |
 | **2** | **README.md** | Guide setup < 5 min, variables d'env, comptes démo, architecture | [README.md](README.md) | ✅ **100% Conforme** |
 | **3** | **Contrat d'API** | OpenAPI 3.0 (YAML/JSON) + Collection Postman (100% endpoints) | [docs/openapi.yaml](docs/openapi.yaml) & [Postman](docs/EDEPOT_Postman_Collection.json) | ✅ **100% Conforme** |
-| **4** | **Tests & Qualité** | JUnit 5 + JaCoCo (**93.83%** d'instructions couvertes $\ge 60\%$) | 22/22 tests réussis (`backend/target/site/jacoco`) | ✅ **100% Conforme** |
-| **5** | **App Déployée** | Déploiement public interactif en ligne 24/7 | [GitHub Pages Live Demo](https://collesyll0607.github.io/e-depot-plateforme/) | ✅ **100% Conforme** |
-| **6** | **Rapport Technique** | PDF 10-20 pages (`P10_EDepot_Rapport.pdf`, 13 pages, plan officiel) | [P10_EDepot_Rapport.pdf](docs/P10_EDepot_Rapport.pdf) | ✅ **100% Conforme** |
+| **4** | **Tests & Qualité** | JUnit 5 + JaCoCo (**93.94%** d'instructions couvertes >= 60%) | 29/29 tests réussis (`backend/target/site/jacoco`) | ✅ **100% Conforme** |
+| **5** | **App Déployée** | Front-end GitHub Pages connecté au Back-end Render + PostgreSQL 18 | [Front-end Live](https://collesyll0607.github.io/e-depot-plateforme/) · [API Health](https://edepot-api.onrender.com/api/v1/health) | ✅ **100% Conforme** |
+| **6** | **Rapport Technique** | PDF 10-20 pages (`P10_EDepot_Rapport.pdf`, 14 pages, plan officiel) | [P10_EDepot_Rapport.pdf](docs/P10_EDepot_Rapport.pdf) | ✅ **100% Conforme** |
 | **7** | **Présentation** | Support de soutenance 12-15 slides (`P10_EDepot_Presentation.pptx`) | [P10_EDepot_Presentation.pptx](docs/P10_EDepot_Presentation.pptx) | ✅ **100% Conforme** |
 
 ---
@@ -143,18 +145,19 @@ La documentation interactive OpenAPI / Swagger est disponible sur `http://localh
 cd backend
 mvn test
 ```
-* **Résultat** : 22 tests exécutés avec succès (0 échec, 0 erreur, 0 skipped).
+* **Résultat** : 29 tests exécutés avec succès (0 échec, 0 erreur, 0 skipped).
 * **Rapport de couverture JaCoCo** : généré dans `backend/target/site/jacoco/index.html`.
-* **Taux d'instructions couvertes** : **93.83%** (dépasse largement l'exigence minimale de 60%).
+* **Taux d'instructions couvertes** : **93.94%** (5 918 / 6 300 sur 52 classes — dépasse largement l'exigence minimale de 60%).
 
 | Package Java | Instructions Couvertes | Instructions Totales | Taux de Couverture | Statut Barème (&ge; 60%) |
 |:---|:---:|:---:|:---:|:---:|
 | `sn.uasz.edepot.dto` | 105 | 105 | **100.00%** | ✅ Conforme (+40.0%) |
 | `sn.uasz.edepot.security` | 323 | 334 | **96.71%** | ✅ Conforme (+36.7%) |
+| `sn.uasz.edepot.config` | 267 | 277 | **96.39%** | ✅ Conforme (+36.4%) |
 | `sn.uasz.edepot.model` | 1 549 | 1 640 | **94.45%** | ✅ Conforme (+34.5%) |
 | `sn.uasz.edepot.service` | 2 903 | 3 087 | **94.04%** | ✅ Conforme (+34.0%) |
-| `sn.uasz.edepot.controller` | 755 | 835 | **90.42%** | ✅ Conforme (+30.4%) |
-| **TOTAL PROJET E-DÉPÔT** | **5 638** | **6 009** | **93.83%** | ✅ **OBJECTIF LARGEMENT DÉPASSÉ** |
+| `sn.uasz.edepot.controller` | 768 | 848 | **90.57%** | ✅ Conforme (+30.6%) |
+| **TOTAL PROJET E-DÉPÔT** | **5 918** | **6 300** | **93.94%** | ✅ **OBJECTIF LARGEMENT DÉPASSÉ** |
 
 ### Étape 3 : Démarrer le Frontend React + Vite
 ```bash
