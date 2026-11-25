@@ -56,6 +56,7 @@ public final class DatabaseUrlResolver {
         ResolvedDatasource resolved = resolvedOpt.get();
         System.setProperty("spring.datasource.url", resolved.jdbcUrl());
         System.setProperty("spring.datasource.driver-class-name", resolved.driverClassName());
+        System.setProperty("spring.jpa.database-platform", "org.hibernate.dialect.PostgreSQLDialect");
         if (resolved.username() != null && !resolved.username().isBlank()) {
             System.setProperty("spring.datasource.username", resolved.username());
         }

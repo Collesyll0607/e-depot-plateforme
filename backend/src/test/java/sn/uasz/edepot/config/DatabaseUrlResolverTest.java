@@ -16,6 +16,7 @@ class DatabaseUrlResolverTest {
         System.clearProperty("spring.datasource.username");
         System.clearProperty("spring.datasource.password");
         System.clearProperty("spring.datasource.driver-class-name");
+        System.clearProperty("spring.jpa.database-platform");
     }
 
     @Test
