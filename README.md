@@ -10,8 +10,8 @@
 
 # E-DÉPÔT — Plateforme Logistique & Séquestre de Fret (Casamance)
 
-> **Projet 10** — Gestion de Projet Informatique Avancée (L3 Ingénierie Informatique, Université Assane Seck de Ziguinchor — UASZ).  
-> Auteure : **Collé SYLL** (Matricule 202300489) — Année Académique 2025/2026.
+> **Projet 10 (Groupe 10)** — Gestion de Projet Informatique Avancée (L3 Ingénierie Informatique, Université Assane Seck de Ziguinchor — UASZ).  
+> **Équipe Groupe 10 :** **Collé Syll** · **Mamadou Sène** · **Mamadou Lamine Cissoko** · **Adja Fatou Binetou Sarr** · **Mame Diarra Ndiaye** — Année Académique 2025/2026.
 
 ---
 
