@@ -12,7 +12,7 @@ import { Search, Package, MapPin, Truck, CheckCircle2, AlertTriangle, ShieldChec
 
 export const SuiviPublic: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
-  const [query, setQuery] = useState('EXP-2025-001');
+  const [query, setQuery] = useState('EXP-CAS-2025-001');
   const [expedition, setExpedition] = useState<Expedition | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -36,7 +36,7 @@ export const SuiviPublic: React.FC = () => {
       const match = all.find(
         (exp) =>
           exp.reference.toLowerCase() === query.trim().toLowerCase() ||
-          exp.destinataire.telephone.includes(query.trim())
+          (exp.destinataire?.telephone || '').includes(query.trim())
       );
 
       if (match) {
@@ -57,7 +57,7 @@ export const SuiviPublic: React.FC = () => {
       <div style={{ maxWidth: '680px', margin: '0 auto 2.5rem', textAlign: 'center' }}>
         <h1 style={{ fontSize: '2.2rem', marginBottom: '0.75rem' }}>Suivi d'expédition en direct</h1>
         <p style={{ color: 'var(--color-text-muted)' }}>
-          Entrez le numéro de votre expédition (ex: <code>EXP-2025-001</code>) ou le téléphone du destinataire.
+          Entrez le numéro de votre expédition (ex: <code>EXP-CAS-2025-001</code>) ou le téléphone du destinataire.
         </p>
 
         <form onSubmit={handleSearch} className="search-bar-form">

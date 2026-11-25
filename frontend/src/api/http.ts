@@ -46,10 +46,17 @@ export class HttpApiClient implements ApiClient {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}${endpoint}`, {
+        ...options,
+        headers,
+      });
+    } catch {
+      throw new Error(
+        "Le serveur API est en cours de démarrage ou temporairement inaccessible. Veuillez réessayer dans quelques secondes."
+      );
+    }
 
     if (!response.ok) {
       let errMsg = `Erreur serveur (${response.status})`;
@@ -60,6 +67,10 @@ export class HttpApiClient implements ApiClient {
         // Fallback
       }
       throw new Error(errMsg);
+    }
+
+    if (response.status === 204) {
+      return undefined as T;
     }
 
     return response.json();
